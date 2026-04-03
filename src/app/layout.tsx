@@ -15,6 +15,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "KEN AI - Intelligent Student Management",
   description: "AI-powered platform for study abroad consultation and visa processing",
+  keywords: ["student management", "AI", "study abroad", "visa", "education", "OCR", "chatbot"],
+  authors: [{ name: "KEN AI Team" }],
+  openGraph: {
+    title: "KEN AI - Intelligent Student Management",
+    description: "AI-powered platform for study abroad consultation and visa processing",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
