@@ -56,12 +56,11 @@ export function Navbar() {
         <div className="flex items-center gap-4">
           {/* Theme Toggle */}
           <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button variant="ghost" size="icon">
+            <DropdownMenuTrigger render={<button type="button" aria-label="Toggle theme" />}>
+              <div className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9">
                 <Sun className="h-5 w-5 rotate-0 scale-100 transition-transform dark:-rotate-90 dark:scale-0" />
                 <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-transform dark:rotate-0 dark:scale-100" />
-                <span className="sr-only">Toggle theme</span>
-              </Button>
+              </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setTheme('light')}>
@@ -87,16 +86,16 @@ export function Navbar() {
 
           {/* User Menu */}
           <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button variant="ghost" size="icon" className="rounded-full">
+            <DropdownMenuTrigger render={<button type="button" aria-label="User menu" />}>
+              <div className="inline-flex items-center justify-center rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9 overflow-hidden">
                 {user?.email ? (
-                  <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
+                  <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
                     {user.email.charAt(0).toUpperCase()}
                   </div>
                 ) : (
                   <User className="h-5 w-5" />
                 )}
-              </Button>
+              </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>
