@@ -54,7 +54,7 @@ Edit `.env.local` and add your credentials:
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
 # Google AI (Gemini)
 GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key
@@ -300,7 +300,7 @@ supabase functions deploy ocr-process --prod
 |----------|-------------|----------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | ✅ |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous/public key | ✅ |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role (server-side only) | ✅ |
+| `NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY` | Supabase service role (server-side only) | ✅ |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | Gemini API key | ✅ |
 | `NEXT_PUBLIC_APP_URL` | Frontend URL for callbacks | ❌ |
 

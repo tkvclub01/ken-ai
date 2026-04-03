@@ -88,7 +88,7 @@ USING (
 2. Copy these values to `.env.local`:
    - `NEXT_PUBLIC_SUPABASE_URL` (e.g., `https://xxxxx.supabase.co`)
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY` (starts with `eyJ...`)
-   - `SUPABASE_SERVICE_ROLE_KEY` (starts with `eyJ...`) ⚠️ Keep secret!
+   - `NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY` (starts with `eyJ...`) ⚠️ Keep secret!
 
 #### Gemini API Key
 1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
@@ -109,7 +109,7 @@ Edit `.env.local` and paste your keys:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 GOOGLE_GENERATIVE_AI_API_KEY=your-gemini-api-key
 ```
 
