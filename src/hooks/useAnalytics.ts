@@ -142,3 +142,23 @@ export function useCountryDistribution() {
     },
   })
 }
+
+/**
+ * Combined analytics hook for comprehensive dashboard data
+ */
+export function useAnalytics() {
+  const { data: stats } = useDashboardStats()
+  const { data: pipeline } = usePipelineData()
+  const { data: monthly } = useMonthlyTrends()
+  const { data: countries } = useCountryDistribution()
+
+  return {
+    data: {
+      ...stats,
+      pipeline,
+      monthly,
+      countries,
+    },
+    isLoading: !stats || !pipeline || !monthly || !countries,
+  }
+}
