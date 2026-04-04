@@ -186,7 +186,7 @@ export function FileUpload({ studentId, documentCategory, onUploadComplete }: Fi
     setUploadProgress(0)
   }
 
-  const getStatusIcon() {
+  const getStatusIcon = (): React.JSX.Element => {
     switch (uploadStatus) {
       case 'completed':
         return <CheckCircle2 className="w-5 h-5 text-green-500" />
@@ -200,7 +200,7 @@ export function FileUpload({ studentId, documentCategory, onUploadComplete }: Fi
     }
   }
 
-  const getStatusText() {
+  const getStatusText = (): string => {
     switch (uploadStatus) {
       case 'idle':
         return 'Drag & drop or click to select'

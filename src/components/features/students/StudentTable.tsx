@@ -138,7 +138,7 @@ export function StudentTable() {
             onChange={(e) => setSearch(e.target.value)}
             className="max-w-sm"
           />
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select value={statusFilter} onValueChange={(value: string | null) => value && setStatusFilter(value)}>
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="All Status" />
             </SelectTrigger>
@@ -150,7 +150,7 @@ export function StudentTable() {
               <SelectItem value="completed">Completed</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={stageFilter} onValueChange={setStageFilter}>
+          <Select value={stageFilter} onValueChange={(value: string | null) => value && setStageFilter(value)}>
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="All Stages" />
             </SelectTrigger>
@@ -266,7 +266,7 @@ export function StudentTable() {
                 <TableCell>{formatDate(student.created_at)}</TableCell>
                 <TableCell>
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger>
                       <Button variant="ghost" size="icon">
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>

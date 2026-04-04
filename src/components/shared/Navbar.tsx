@@ -25,7 +25,7 @@ import {
 } from 'lucide-react'
 import { useThemeStore } from '@/stores/useThemeStore'
 import { useUserStore } from '@/stores/useUserStore'
-import { CommandPalette } from './CommandPalette'
+import { CommandPalette } from '@/components/shared/CommandPalette'
 
 export function Navbar() {
   const { theme, setTheme, toggleTheme } = useThemeStore()

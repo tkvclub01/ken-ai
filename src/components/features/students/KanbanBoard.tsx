@@ -141,7 +141,7 @@ function StudentCard({ student, onDragStart }: StudentCardProps) {
             <p className="text-xs text-muted-foreground mt-1">{student.email}</p>
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger>
               <Button variant="ghost" size="icon" className="h-6 w-6">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>

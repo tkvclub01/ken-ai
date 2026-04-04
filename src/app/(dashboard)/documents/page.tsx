@@ -8,9 +8,10 @@ import { DocumentTable } from '@/components/features/documents/DocumentTable'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent } from '@/components/ui/card'
 import { FileText, Upload } from 'lucide-react'
+import { Document } from '@/types'
 
 export default function DocumentsPage() {
-  const [selectedDocument, setSelectedDocument] = useState(null)
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null)
   const [view, setView] = useState<'list' | 'detail'>('list')
 
   return (

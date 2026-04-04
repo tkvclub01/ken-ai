@@ -32,8 +32,8 @@ const studentSchema = z.object({
   nationality: z.string().optional(),
   target_country: z.string().optional(),
   target_school: z.string().optional(),
-  current_stage: z.string().default('lead'),
-  status: z.enum(['lead', 'active', 'inactive', 'completed']).default('lead'),
+  current_stage: z.string().optional(),
+  status: z.enum(['lead', 'active', 'inactive', 'completed']).optional(),
   notes: z.string().optional(),
 })
 
