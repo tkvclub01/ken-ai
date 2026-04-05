@@ -130,12 +130,12 @@ export function useAuth() {
       await supabase.auth.signOut()
       // Clear all caches
       queryClient.clear()
-      // Redirect to login page after sign out
-      window.location.href = '/login'
+      // Redirect to login page after sign out using Next.js router
+      window.location.assign('/login')
     } catch (err: any) {
       setError(err.message)
     }
-  }, [supabase, queryClient])
+  }, [queryClient])
 
   // Refresh user data (manually trigger cache invalidation)
   const refreshUser = useCallback(() => {

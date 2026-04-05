@@ -6,7 +6,7 @@ import { PipelineChart } from '@/components/features/analytics/PipelineChart'
 import { ActivityFeed } from '@/components/features/analytics/ActivityFeed'
 import { AISummaryWidget } from '@/components/features/analytics/AISummaryWidget'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Users, FileText, Settings, Shield, TrendingUp, DollarSign } from 'lucide-react'
+import { Users, FileText, Settings, Shield, DollarSign, Activity } from 'lucide-react'
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -69,7 +69,7 @@ export default function AdminDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">System Health</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">98.2%</div>

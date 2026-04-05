@@ -5,7 +5,7 @@ import { CountryDistributionChart } from '@/components/features/analytics/Countr
 import { PipelineChart } from '@/components/features/analytics/PipelineChart'
 import { ActivityFeed } from '@/components/features/analytics/ActivityFeed'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { BarChart3, TrendingUp } from 'lucide-react'
+import { BarChart3 } from 'lucide-react'
 
 export default function AnalyticsPage() {
   return (

@@ -25,7 +25,7 @@ export default function NotFoundPage() {
           </p>
           
           <div className="flex flex-col gap-3">
-            <Button className="h-11" onClick={() => window.location.href = '/'}>
+            <Button className="h-11" onClick={() => window.location.assign('/')}>
               <Home className="mr-2 h-4 w-4" />
               Go to Dashboard
             </Button>

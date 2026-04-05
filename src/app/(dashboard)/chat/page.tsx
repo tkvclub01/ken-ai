@@ -244,7 +244,7 @@ export default function ChatPage() {
               placeholder="Type your message..."
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyPress}
               disabled={isStreaming || sendMessageMutation.isPending}
               className="flex-1"
             />
