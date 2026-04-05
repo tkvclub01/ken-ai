@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -16,7 +16,7 @@ interface OCRResultsPanelProps {
   document: Document | null
 }
 
-export function OCRResultsPanel({ document }: OCRResultsPanelProps) {
+export const OCRResultsPanel = memo(function OCRResultsPanel({ document }: OCRResultsPanelProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editedText, setEditedText] = useState('')
   const [isSaving, setIsSaving] = useState(false)
@@ -198,4 +198,4 @@ export function OCRResultsPanel({ document }: OCRResultsPanelProps) {
       </CardContent>
     </Card>
   )
-}
+})

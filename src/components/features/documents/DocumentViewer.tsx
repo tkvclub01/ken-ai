@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -12,7 +12,7 @@ interface DocumentViewerProps {
   document: Document | null
 }
 
-export function DocumentViewer({ document }: DocumentViewerProps) {
+export const DocumentViewer = memo(function DocumentViewer({ document }: DocumentViewerProps) {
   const [zoom, setZoom] = useState(100)
   const [rotation, setRotation] = useState(0)
 
@@ -114,4 +114,4 @@ export function DocumentViewer({ document }: DocumentViewerProps) {
       </CardContent>
     </Card>
   )
-}
+})
