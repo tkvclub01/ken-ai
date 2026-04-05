@@ -1,32 +1,57 @@
 'use client'
 
+import React, { useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { NAVIGATION } from '@/lib/constants'
 import { useSidebarStore } from '@/stores/useSidebarStore'
-import * as LucideIcons from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
+// PERFORMANCE FIX: Import only used icons for tree-shaking
+import {
+  LayoutDashboard,
+  Users,
+  FileText,
+  MessageSquare,
+  BookOpen,
+  BarChart3,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react'
+
+// Icon map for dynamic rendering (tree-shakeable)
+const ICON_MAP: Record<string, React.ElementType> = {
+  LayoutDashboard,
+  Users,
+  FileText,
+  MessageSquare,
+  BookOpen,
+  BarChart3,
+  Settings,
+}
 
 export function Sidebar() {
   const pathname = usePathname()
   const { collapsed, toggle } = useSidebarStore()
 
-  // Group navigation items
-  const groupedNav = NAVIGATION.reduce(
-    (acc, item) => {
-      const group = item.group || 'other'
-      if (!acc[group]) acc[group] = []
-      acc[group].push(item)
-      return acc
-    },
-    {} as Record<string, typeof NAVIGATION>
-  )
+  // Group navigation items with useMemo to prevent recalculation
+  const groupedNav = useMemo(() => {
+    return NAVIGATION.reduce(
+      (acc, item) => {
+        const group = item.group || 'other'
+        if (!acc[group]) acc[group] = []
+        acc[group].push(item)
+        return acc
+      },
+      {} as Record<string, typeof NAVIGATION>
+    )
+  }, []) // Empty deps - NAVIGATION is constant
 
   const renderIcon = (iconName: string) => {
-    const IconComponent = (LucideIcons as any)[iconName]
+    const IconComponent = ICON_MAP[iconName]
     return IconComponent ? <IconComponent className="w-5 h-5" /> : null
   }
 
@@ -49,9 +74,9 @@ export function Sidebar() {
           className="h-8 w-8"
         >
           {collapsed ? (
-            <LucideIcons.ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4" />
           ) : (
-            <LucideIcons.ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-4 w-4" />
           )}
         </Button>
       </div>
@@ -68,7 +93,7 @@ export function Sidebar() {
               )}
               <div className="space-y-1">
                 {items.map((item) => {
-                  const Icon = (LucideIcons as any)[item.icon]
+                  const Icon = ICON_MAP[item.icon]
                   const isActive = pathname === item.href
 
                   return (
