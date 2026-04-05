@@ -29,14 +29,10 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
+          // FIX: Set all cookies on the response ONCE, not in nested loops
           cookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value)
-            supabaseResponse = NextResponse.next({
-              request,
-            })
-            cookiesToSet.forEach(({ name, value, options }) =>
-              supabaseResponse.cookies.set(name, value, options)
-            )
+            supabaseResponse.cookies.set(name, value, options)
           })
         },
       },

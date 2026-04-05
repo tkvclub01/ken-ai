@@ -4,6 +4,48 @@ import { z } from 'zod'
 
 const gemini = google('gemini-1.5-flash')
 
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW_MS = 60 * 1000 // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 20 // 20 calls per minute
+
+// In-memory rate limit store (keyed by user ID or IP)
+interface RateLimitEntry {
+  count: number
+  resetTime: number
+}
+
+const rateLimitStore = new Map<string, RateLimitEntry>()
+
+/**
+ * Check and enforce rate limit for a given key (user ID or IP)
+ * @param key - Identifier for rate limiting (userId, IP, etc.)
+ * @throws Error if rate limit exceeded
+ */
+function checkRateLimit(key: string): void {
+  const now = Date.now()
+  const entry = rateLimitStore.get(key)
+
+  if (!entry || now > entry.resetTime) {
+    // First request or window expired - reset
+    rateLimitStore.set(key, {
+      count: 1,
+      resetTime: now + RATE_LIMIT_WINDOW_MS,
+    })
+    return
+  }
+
+  if (entry.count >= MAX_REQUESTS_PER_WINDOW) {
+    const remainingMs = entry.resetTime - now
+    const remainingSec = Math.ceil(remainingMs / 1000)
+    throw new Error(
+      `Rate limit exceeded. Maximum ${MAX_REQUESTS_PER_WINDOW} requests per minute. Try again in ${remainingSec}s`
+    )
+  }
+
+  // Increment counter
+  entry.count += 1
+}
+
 /**
  * Extract structured data from document images using OCR
  */
@@ -67,12 +109,20 @@ export async function extractDocumentData(
 
 /**
  * Generate response for AI chat assistant with context from knowledge base
+ * @param message - User's message
+ * @param context - Optional context from knowledge base
+ * @param studentData - Optional student data
+ * @param userId - User ID for rate limiting (defaults to 'anonymous')
  */
 export async function generateAIResponse(
   message: string,
   context?: string,
-  studentData?: any
+  studentData?: any,
+  userId: string = 'anonymous'
 ) {
+  // Enforce rate limit
+  checkRateLimit(userId)
+
   let systemPrompt = `You are KEN AI, an intelligent assistant helping staff with student consultation and visa processing.
   
 You have access to:
@@ -91,15 +141,27 @@ Always be professional, accurate, and cite your sources when possible.`
     systemPrompt += `\n\nCurrent Student Information:\n${JSON.stringify(studentData, null, 2)}`
   }
 
-  const { text } = await generateText({
-    model: gemini,
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: message },
-    ],
-  })
+  try {
+    const { text } = await generateText({
+      model: gemini,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: message },
+      ],
+    })
 
-  return text
+    return text
+  } catch (error: any) {
+    console.error('Error generating AI response:', error)
+    
+    // Check if it's a rate limit error
+    if (error.message?.includes('Rate limit exceeded')) {
+      throw error // Re-throw rate limit errors as-is
+    }
+    
+    // Wrap other errors with user-friendly message
+    throw new Error(`AI service unavailable: ${error.message || 'Unknown error'}`)
+  }
 }
 
 /**
