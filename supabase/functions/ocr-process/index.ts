@@ -156,7 +156,7 @@ serve(async (req) => {
       if (documentId) {
         const supabaseClient = createClient(
           Deno.env.get('NEXT_PUBLIC_SUPABASE_URL') ?? '',
-          Deno.env.get('NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '', // SECURITY: No NEXT_PUBLIC_ prefix
           {
             global: {
               headers: { Authorization: req.headers.get('Authorization')! },
