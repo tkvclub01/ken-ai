@@ -6,6 +6,7 @@ import { Student, StudentInsert, StudentUpdate } from '@/types'
 import { handleError, handleSupabaseError } from '@/lib/errors'
 import { useMemo } from 'react'
 import { toast } from 'sonner'
+import { fetchPipelineForStudents, fetchPipelineForStudent } from '@/lib/pipeline-utils'
 
 /**
  * Hook to fetch all students with optional filters
@@ -48,23 +49,9 @@ export function useStudents(filters?: {
           return [] as Student[]
         }
 
-        // Fetch pipeline data separately
+        // Fetch pipeline data using shared utility
         const studentIds = studentsData.map(s => s.id)
-        const { data: pipelineData, error: pipelineError } = await supabase
-          .from('student_pipeline')
-          .select('student_id, current_stage_id')
-          .in('student_id', studentIds)
-
-        if (pipelineError) {
-          console.error('Error fetching pipeline:', pipelineError)
-          // Continue without pipeline data
-        }
-
-        // Create a map of student_id to pipeline data
-        const pipelineMap = new Map()
-        pipelineData?.forEach((p: any) => {
-          pipelineMap.set(p.student_id, p)
-        })
+        const pipelineMap = await fetchPipelineForStudents(studentIds)
 
         // Transform the data
         const transformedData = studentsData.map((student: any) => {
@@ -117,17 +104,8 @@ export function useStudent(id: string) {
           throw new Error(studentError.message)
         }
 
-        // Fetch pipeline data separately
-        const { data: pipelineData, error: pipelineError } = await supabase
-          .from('student_pipeline')
-          .select('student_id, current_stage_id')
-          .eq('student_id', id)
-          .maybeSingle()
-
-        if (pipelineError) {
-          console.error('Error fetching pipeline:', pipelineError)
-          // Continue without pipeline data
-        }
+        // Fetch pipeline data using shared utility
+        const pipelineData = await fetchPipelineForStudent(id)
 
         // Transform the data
         const transformedData = {

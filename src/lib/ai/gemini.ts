@@ -16,6 +16,36 @@ interface RateLimitEntry {
 
 const rateLimitStore = new Map<string, RateLimitEntry>()
 
+// Cleanup interval for expired rate limit entries (every 5 minutes)
+const CLEANUP_INTERVAL_MS = 5 * 60 * 1000
+
+/**
+ * Periodically clean up expired rate limit entries to prevent memory leaks
+ */
+function startRateLimitCleanup(): void {
+  setInterval(() => {
+    const now = Date.now()
+    let cleanedCount = 0
+    
+    rateLimitStore.forEach((entry, key) => {
+      if (now > entry.resetTime) {
+        rateLimitStore.delete(key)
+        cleanedCount++
+      }
+    })
+    
+    if (cleanedCount > 0) {
+      console.log(`[Rate Limiter] Cleaned up ${cleanedCount} expired entries`)
+    }
+  }, CLEANUP_INTERVAL_MS)
+}
+
+// Start cleanup on module load
+if (typeof window === 'undefined') {
+  // Only run on server-side
+  startRateLimitCleanup()
+}
+
 /**
  * Check and enforce rate limit for a given key (user ID or IP)
  * @param key - Identifier for rate limiting (userId, IP, etc.)
@@ -170,8 +200,12 @@ Always be professional, accurate, and cite your sources when possible.`
 export async function streamAIResponse(
   message: string,
   context?: string,
-  studentData?: any
+  studentData?: any,
+  userId: string = 'anonymous'
 ) {
+  // Enforce rate limit
+  checkRateLimit(userId)
+
   let systemPrompt = `You are KEN AI, an intelligent assistant helping staff with student consultation and visa processing.`
 
   if (context) {
@@ -197,7 +231,10 @@ export async function streamAIResponse(
  * Generate real embedding vector using Google's gemini-embedding-001 model
  * Returns 768-dimensional vector optimized for semantic search
  */
-export async function generateEmbedding(text: string): Promise<number[]> {
+export async function generateEmbedding(text: string, userId: string = 'anonymous'): Promise<number[]> {
+  // Enforce rate limit (embeddings can be expensive)
+  checkRateLimit(userId)
+
   try {
     const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY
     

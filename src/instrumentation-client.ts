@@ -6,7 +6,7 @@ import * as Sentry from "@sentry/nextjs";
 import { initWebVitals, setupPerformanceObserver } from "@/lib/web-vitals";
 
 Sentry.init({
-  dsn: "https://1cd3c019d5a61275ba961939da109ea3@o4511161436405760.ingest.us.sentry.io/4511161437126656",
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
   // Add optional integrations for additional features
   integrations: [Sentry.replayIntegration()],
