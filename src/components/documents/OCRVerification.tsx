@@ -11,10 +11,10 @@ import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
 import { Check, X, RotateCcw, Eye, Download } from 'lucide-react'
-import type { Database } from '@/lib/supabase/types'
+import type { Database } from '@/types'
 
 type DocumentRow = Database['public']['Tables']['documents']['Row']
-type ExtractedData = NonNullable<DocumentRow['extracted_data']>
+type OCRData = NonNullable<DocumentRow['ocr_data']>
 
 interface OCRVerificationProps {
   documentId: string
@@ -24,7 +24,7 @@ interface OCRVerificationProps {
 export function OCRVerification({ documentId, onVerified }: OCRVerificationProps) {
   const supabase = createClient()
   const [document, setDocument] = useState<DocumentRow | null>(null)
-  const [extractedData, setExtractedData] = useState<ExtractedData | null>(null)
+  const [ocrData, setOcrData] = useState<OCRData | null>(null)
   const [editedData, setEditedData] = useState<Record<string, any>>({})
   const [isLoading, setIsLoading] = useState(true)
   const [isVerifying, setIsVerifying] = useState(false)
@@ -46,8 +46,8 @@ export function OCRVerification({ documentId, onVerified }: OCRVerificationProps
       if (error) throw error
 
       setDocument(data)
-      setExtractedData(data.extracted_data as ExtractedData)
-      setEditedData(data.extracted_data as any || {})
+      setOcrData(data.ocr_data as OCRData)
+      setEditedData(data.ocr_data as any || {})
 
       // Get signed URL for image viewing
       if (data.file_path) {
@@ -77,9 +77,9 @@ export function OCRVerification({ documentId, onVerified }: OCRVerificationProps
   }
 
   const calculateConfidence = (fieldName: string): number => {
-    if (!extractedData) return 0
+    if (!ocrData) return 0
     
-    const confidence = (extractedData as any).confidence || 0.8
+    const confidence = (ocrData as any).confidence || 0.8
     // Simple heuristic - could be improved based on field-specific confidence
     return Math.round(confidence * 100)
   }
@@ -92,10 +92,10 @@ export function OCRVerification({ documentId, onVerified }: OCRVerificationProps
       const { error: docError } = await supabase
         .from('documents')
         .update({
-          ocr_status: 'verified',
-          extracted_data: editedData,
-          verified_by: (await supabase.auth.getUser()).data.user?.id || null,
-          verified_at: new Date().toISOString(),
+          ocr_status: 'completed',
+          ocr_data: editedData,
+          uploaded_by: (await supabase.auth.getUser()).data.user?.id || null,
+          updated_at: new Date().toISOString(),
         })
         .eq('id', documentId)
 
@@ -243,9 +243,9 @@ export function OCRVerification({ documentId, onVerified }: OCRVerificationProps
           <Badge variant={document.ocr_status === 'completed' ? 'default' : 'secondary'}>
             {document.ocr_status}
           </Badge>
-          {extractedData && (
+          {ocrData && (
             <Badge variant="outline">
-              Confidence: {Math.round((extractedData as any).confidence * 100)}%
+              Confidence: {Math.round((ocrData as any).confidence * 100)}%
             </Badge>
           )}
         </div>
