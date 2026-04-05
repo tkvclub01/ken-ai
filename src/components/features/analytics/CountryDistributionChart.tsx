@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { useCountryDistribution } from '@/hooks/useAnalytics'
 import { Globe } from 'lucide-react'
@@ -25,7 +26,7 @@ const COLORS = [
   '#5DADE2',
 ]
 
-export function CountryDistributionChart() {
+export const CountryDistributionChart = memo(function CountryDistributionChart() {
   const { data: distribution, isLoading } = useCountryDistribution()
 
   if (isLoading) {
@@ -92,4 +93,4 @@ export function CountryDistributionChart() {
       </CardContent>
     </Card>
   )
-}
+})

@@ -1,11 +1,12 @@
 'use client'
 
+import { memo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { DollarSign, TrendingUp, Users, FileText } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 
-export function RevenueTracking() {
+export const RevenueTracking = memo(function RevenueTracking() {
   const { data: analytics, isLoading } = useAnalytics()
 
   if (isLoading) {
@@ -80,4 +81,4 @@ export function RevenueTracking() {
       })}
     </div>
   )
-}
+})

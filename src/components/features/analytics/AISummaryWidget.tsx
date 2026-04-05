@@ -1,10 +1,11 @@
 'use client'
 
+import { memo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Brain, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react'
 
-export function AISummaryWidget() {
+export const AISummaryWidget = memo(function AISummaryWidget() {
   // Mock AI summary - in production, this would come from your AI service
   const summary = {
     date: new Date().toLocaleDateString('en-US', {
@@ -88,4 +89,4 @@ export function AISummaryWidget() {
       </CardContent>
     </Card>
   )
-}
+})

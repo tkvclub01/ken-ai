@@ -1,11 +1,12 @@
 'use client'
 
+import { memo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, FileText, CheckCircle, TrendingUp, DollarSign, Clock } from 'lucide-react'
 import { useDashboardStats } from '@/hooks/useAnalytics'
 import { formatCurrency } from '@/lib/utils'
 
-export function StatsCards() {
+export const StatsCards = memo(function StatsCards() {
   const { data: stats, isLoading } = useDashboardStats()
 
   if (isLoading) {
@@ -77,4 +78,4 @@ export function StatsCards() {
       })}
     </div>
   )
-}
+})

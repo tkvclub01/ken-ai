@@ -1,11 +1,12 @@
 'use client'
 
+import { memo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { usePipelineData } from '@/hooks/useAnalytics'
 import { getStageColor } from '@/lib/utils'
 
-export function PipelineChart() {
+export const PipelineChart = memo(function PipelineChart() {
   const { data: pipelineData, isLoading } = usePipelineData()
 
   if (isLoading) {
@@ -47,4 +48,4 @@ export function PipelineChart() {
       </CardContent>
     </Card>
   )
-}
+})

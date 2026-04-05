@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -53,7 +54,7 @@ const mockActivities: Activity[] = [
   },
 ]
 
-export function ActivityFeed() {
+export const ActivityFeed = memo(function ActivityFeed() {
   const activities = mockActivities
 
   const getActivityIcon = (type: string) => {
@@ -119,4 +120,4 @@ export function ActivityFeed() {
       </CardContent>
     </Card>
   )
-}
+})
