@@ -23,6 +23,13 @@ export function useAuthSession(options?: UseAuthSessionOptions) {
   const router = useRouter()
   const supabase = createClient()
   const mountedRef = useRef(true)
+  
+  // Store options in ref to prevent subscription thrashing
+  // Options object changes on every render, but we want stable reference
+  const optionsRef = useRef(options)
+  useEffect(() => {
+    optionsRef.current = options
+  }, [options])
 
   /**
    * Kiểm tra session hiện tại
@@ -35,7 +42,7 @@ export function useAuthSession(options?: UseAuthSessionOptions) {
       if (error || !session) {
         console.warn('No valid session found')
         queryClient.clear()
-        options?.onTokenExpired?.()
+        optionsRef.current?.onTokenExpired?.()
         return false
       }
 
@@ -58,7 +65,7 @@ export function useAuthSession(options?: UseAuthSessionOptions) {
       console.error('Session check failed:', error)
       return false
     }
-  }, [queryClient, supabase.auth, options])
+  }, [queryClient, supabase.auth])
 
   /**
    * Refresh session token
@@ -84,7 +91,7 @@ export function useAuthSession(options?: UseAuthSessionOptions) {
           exact: false 
         })
         
-        options?.onTokenRefreshed?.()
+        optionsRef.current?.onTokenRefreshed?.()
         return data.session
       }
     } catch (error: any) {
@@ -92,10 +99,11 @@ export function useAuthSession(options?: UseAuthSessionOptions) {
       await handleSessionExpired()
       throw error
     }
-  }, [queryClient, supabase.auth, options])
+  }, [queryClient, supabase.auth])
 
   /**
    * Xử lý khi session hết hạn
+   * Redirect immediately - no delay needed as toast is already displayed
    */
   const handleSessionExpired = useCallback(async () => {
     console.log('🚪 Handling session expiration...')
@@ -109,17 +117,14 @@ export function useAuthSession(options?: UseAuthSessionOptions) {
       duration: 5000,
     })
     
-    // Redirect sau delay ngắn để user thấy thông báo
-    const timeoutId = setTimeout(() => {
-      if (mountedRef.current) {
-        options?.onTokenExpired?.()
-        router.push('/login')
-        router.refresh()
-      }
-    }, 1000)
-    
-    return () => clearTimeout(timeoutId)
-  }, [queryClient, router, options])
+    // Redirect immediately - no setTimeout needed
+    // Toast is non-blocking and will remain visible during navigation
+    if (mountedRef.current) {
+      optionsRef.current?.onTokenExpired?.()
+      router.push('/login')
+      router.refresh()
+    }
+  }, [queryClient, router])
 
   /**
    * Force logout - clear everything
@@ -150,20 +155,20 @@ export function useAuthSession(options?: UseAuthSessionOptions) {
           case 'INITIAL_SESSION':
             // Only log once, don't trigger any actions
             console.log('✅ Initial session loaded')
-            options?.onAuthStateChange?.(event, session?.user?.id || null)
+            optionsRef.current?.onAuthStateChange?.(event, session?.user?.id || null)
             break
             
           case 'TOKEN_REFRESHED':
             console.log('✅ Token auto-refreshed by Supabase')
             queryClient.invalidateQueries({ queryKey: ['user'] })
-            options?.onTokenRefreshed?.()
-            options?.onAuthStateChange?.(event, session?.user?.id || null)
+            optionsRef.current?.onTokenRefreshed?.()
+            optionsRef.current?.onAuthStateChange?.(event, session?.user?.id || null)
             break
             
           case 'SIGNED_OUT':
             console.log('👋 User signed out')
             queryClient.clear()
-            options?.onAuthStateChange?.(event, null)
+            optionsRef.current?.onAuthStateChange?.(event, null)
             break
             
           case 'USER_UPDATED':
@@ -173,12 +178,12 @@ export function useAuthSession(options?: UseAuthSessionOptions) {
                 queryKey: ['user-profile', session.user.id] 
               })
             }
-            options?.onAuthStateChange?.(event, session?.user?.id || null)
+            optionsRef.current?.onAuthStateChange?.(event, session?.user?.id || null)
             break
             
           case 'SIGNED_IN':
             console.log('✅ User signed in')
-            options?.onAuthStateChange?.(event, session?.user?.id || null)
+            optionsRef.current?.onAuthStateChange?.(event, session?.user?.id || null)
             break
         }
       }
