@@ -16,51 +16,52 @@ const roleRouteAccess: Record<string, string[]> = {
 }
 
 export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  })
+  // SECURITY: Top-level try/catch with fail-closed behavior
+  try {
+    let supabaseResponse = NextResponse.next({
+      request,
+    })
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll(cookiesToSet) {
+            // FIX: Set all cookies on the response ONCE, not in nested loops
+            cookiesToSet.forEach(({ name, value, options }) => {
+              request.cookies.set(name, value)
+              supabaseResponse.cookies.set(name, value, options)
+            })
+          },
         },
-        setAll(cookiesToSet) {
-          // FIX: Set all cookies on the response ONCE, not in nested loops
-          cookiesToSet.forEach(({ name, value, options }) => {
-            request.cookies.set(name, value)
-            supabaseResponse.cookies.set(name, value, options)
-          })
-        },
-      },
+      }
+    )
+
+    // Refresh session and get user
+    const { data: { user } } = await supabase.auth.getUser()
+    const { pathname } = request.nextUrl
+
+    // Check if route is public
+    const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+
+    // Redirect to login if accessing protected route without authentication
+    if (!user && !isPublicRoute) {
+      const url = new URL('/login', request.url)
+      url.searchParams.set('redirectedFrom', pathname)
+      return NextResponse.redirect(url)
     }
-  )
 
-  // Refresh session and get user
-  const { data: { user } } = await supabase.auth.getUser()
-  const { pathname } = request.nextUrl
+    // If user is authenticated and trying to access auth pages, redirect to dashboard
+    if (user && isPublicRoute) {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
 
-  // Check if route is public
-  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
-
-  // Redirect to login if accessing protected route without authentication
-  if (!user && !isPublicRoute) {
-    const url = new URL('/login', request.url)
-    url.searchParams.set('redirectedFrom', pathname)
-    return NextResponse.redirect(url)
-  }
-
-  // If user is authenticated and trying to access auth pages, redirect to dashboard
-  if (user && isPublicRoute) {
-    return NextResponse.redirect(new URL('/', request.url))
-  }
-
-  // Role-based access control for protected routes
-  if (user && !isPublicRoute) {
-    try {
+    // Role-based access control for protected routes
+    if (user && !isPublicRoute) {
       // Get user profile to check role
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -87,14 +88,14 @@ export async function middleware(request: NextRequest) {
         // Redirect to unauthorized page
         return NextResponse.redirect(new URL('/403-unauthorized', request.url))
       }
-    } catch (error) {
-      // FAIL CLOSED: On any error, deny access instead of allowing through
-      console.error('Middleware: Role check failed - denying access:', error)
-      return NextResponse.redirect(new URL('/403-unauthorized', request.url))
     }
-  }
 
-  return supabaseResponse
+    return supabaseResponse
+  } catch (error) {
+    // SECURITY: Fail closed - on ANY error, deny access
+    console.error('Middleware: Critical error - denying access:', error)
+    return NextResponse.redirect(new URL('/403-unauthorized', request.url))
+  }
 }
 
 export const config = {

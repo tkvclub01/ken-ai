@@ -136,25 +136,25 @@ export default function SettingsPage() {
       setLoading(true)
       const supabase = createClient()
       
-      // First verify current password by trying to sign in
-      if (passwordData.current_password) {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: authUser?.email || '',
-          password: passwordData.current_password
-        })
-
-        if (signInError) {
-          toast.error('Current password is incorrect')
-          return
-        }
-      }
-
-      // Update password
-      const { error } = await supabase.auth.updateUser({
-        password: passwordData.new_password
+      // SECURITY: Use RPC function for password change with current password verification
+      const { data, error } = await supabase.rpc('change_user_password', {
+        current_password: passwordData.current_password,
+        new_password: passwordData.new_password
       })
 
-      if (error) throw error
+      if (error) {
+        // Map error codes to user-friendly messages
+        const errorMessages: Record<string, string> = {
+          'P0001': 'Not authenticated. Please log in again.',
+          'P0002': 'Current password is incorrect.',
+          'P0003': 'New password must be at least 8 characters.',
+          'P0004': 'Failed to update password. Please try again.'
+        }
+        
+        const message = errorMessages[error.code as string] || error.message
+        toast.error(message)
+        return
+      }
 
       toast.success('Password changed successfully')
       setPasswordData({ current_password: '', new_password: '', confirm_password: '' })

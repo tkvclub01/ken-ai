@@ -12,9 +12,10 @@ serve(async (req) => {
   }
 
   try {
+    // SECURITY: Use anon key with user's JWT for RLS enforcement
     const supabaseClient = createClient(
       Deno.env.get('NEXT_PUBLIC_SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '', // SECURITY: No NEXT_PUBLIC_ prefix
+      Deno.env.get('NEXT_PUBLIC_SUPABASE_ANON_KEY') ?? '',
       {
         global: {
           headers: { Authorization: req.headers.get('Authorization')! },
@@ -22,7 +23,25 @@ serve(async (req) => {
       }
     )
 
-    const { title, content, category, tags, sourceUrl, userId } = await req.json()
+    // Validate authentication
+    const {
+      data: { user },
+      error: authError,
+    } = await supabaseClient.auth.getUser()
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - Valid authentication required' }),
+        {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
+    }
+
+    const userId = user.id
+
+    const { title, content, category, tags, sourceUrl } = await req.json()
 
     if (!title || !content) {
       throw new Error('Missing required fields: title or content')
