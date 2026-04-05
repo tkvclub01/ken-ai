@@ -13,12 +13,23 @@ serve(async (req) => {
   }
 
   try {
+    // SECURITY FIX: Use anon key instead of service role key
+    // This ensures RLS policies are enforced and prevents privilege escalation
+    const authToken = req.headers.get('Authorization')
+    
+    if (!authToken) {
+      return new Response(
+        JSON.stringify({ error: 'Missing Authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+    
     const supabaseClient = createClient(
       Deno.env.get('NEXT_PUBLIC_SUPABASE_URL') ?? '',
-      Deno.env.get('NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      Deno.env.get('NEXT_PUBLIC_SUPABASE_ANON_KEY') ?? '', // Use ANON key, not SERVICE_ROLE
       {
         global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
+          headers: { Authorization: authToken },
         },
       }
     )

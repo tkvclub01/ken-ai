@@ -66,31 +66,35 @@ export async function middleware(request: NextRequest) {
   if (user && !isPublicRoute) {
     try {
       // Get user profile to check role
-      const { data: profile } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
         .single()
 
-      if (profile) {
-        const userRole = profile.role as string
-        
-        // Store role in response header for client-side use
-        supabaseResponse.headers.set('x-user-role', userRole)
-        
-        // Check if user's role has access to this route
-        const allowedRoutes = roleRouteAccess[userRole] || []
-        const hasAccess = allowedRoutes.some(route => pathname.startsWith(route))
-        
-        if (!hasAccess) {
-          // Redirect to unauthorized page
-          return NextResponse.redirect(new URL('/403-unauthorized', request.url))
-        }
+      if (error || !profile) {
+        // FAIL CLOSED: If we can't verify role, deny access
+        console.error('Middleware: Failed to fetch user profile:', error)
+        return NextResponse.redirect(new URL('/403-unauthorized', request.url))
+      }
+
+      const userRole = profile.role as string
+      
+      // Store role in response header for client-side use
+      supabaseResponse.headers.set('x-user-role', userRole)
+      
+      // Check if user's role has access to this route
+      const allowedRoutes = roleRouteAccess[userRole] || []
+      const hasAccess = allowedRoutes.some(route => pathname.startsWith(route))
+      
+      if (!hasAccess) {
+        // Redirect to unauthorized page
+        return NextResponse.redirect(new URL('/403-unauthorized', request.url))
       }
     } catch (error) {
-      console.error('Error checking user role in middleware:', error)
-      // Continue with default behavior if role check fails
-      // This prevents locking out users if there's a temporary DB issue
+      // FAIL CLOSED: On any error, deny access instead of allowing through
+      console.error('Middleware: Role check failed - denying access:', error)
+      return NextResponse.redirect(new URL('/403-unauthorized', request.url))
     }
   }
 
