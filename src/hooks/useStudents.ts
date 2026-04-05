@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { Student, StudentInsert, StudentUpdate } from '@/types'
+import { handleError, handleSupabaseError } from '@/lib/errors'
 import { useMemo } from 'react'
 import { toast } from 'sonner'
 
@@ -82,8 +83,9 @@ export function useStudents(filters?: {
 
         return transformedData as Student[]
       } catch (error: any) {
-        console.error('useStudents query failed:', error)
-        throw error
+        const appError = handleSupabaseError(error)
+        console.error('useStudents query failed:', appError)
+        throw appError
       }
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -136,8 +138,9 @@ export function useStudent(id: string) {
 
         return transformedData
       } catch (error: any) {
-        console.error('useStudent query failed:', error)
-        throw error
+        const appError = handleSupabaseError(error)
+        console.error('useStudent query failed:', appError)
+        throw appError
       }
     },
     enabled: !!id,
@@ -164,14 +167,16 @@ export function useCreateStudent() {
           .single()
 
         if (error) {
-          console.error('Error creating student:', error)
-          throw new Error(error.message)
+          const appError = handleSupabaseError(error)
+          console.error('Error creating student:', appError)
+          throw appError
         }
 
         return data as Student
       } catch (error: any) {
-        console.error('useCreateStudent mutation failed:', error)
-        throw error
+        const appError = handleSupabaseError(error)
+        console.error('useCreateStudent mutation failed:', appError)
+        throw appError
       }
     },
     onSuccess: (data) => {
@@ -264,8 +269,9 @@ export function useUpdateStudent() {
           current_stage: updatedPipeline?.current_stage_id || current_stage || 'lead'
         } as Student
       } catch (error: any) {
-        console.error('useUpdateStudent mutation failed:', error)
-        throw error
+        const appError = handleSupabaseError(error)
+        console.error('useUpdateStudent mutation failed:', appError)
+        throw appError
       }
     },
     
@@ -349,12 +355,14 @@ export function useDeleteStudent() {
 
         const { error } = await supabase.from('students').delete().eq('id', id)
         if (error) {
-          console.error('Error deleting student:', error)
-          throw new Error(error.message)
+          const appError = handleSupabaseError(error)
+          console.error('Error deleting student:', appError)
+          throw appError
         }
       } catch (error: any) {
-        console.error('useDeleteStudent mutation failed:', error)
-        throw error
+        const appError = handleSupabaseError(error)
+        console.error('useDeleteStudent mutation failed:', appError)
+        throw appError
       }
     },
     onSuccess: (_, id) => {

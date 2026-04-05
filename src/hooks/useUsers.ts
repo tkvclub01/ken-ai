@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
+import { handleSupabaseError } from '@/lib/errors'
 
 interface UserProfile {
   id: string
@@ -43,8 +44,9 @@ export function useUsers(filters?: {
         if (error) throw error
         return data as UserProfile[]
       } catch (error: any) {
-        console.error('Error fetching users:', error)
-        throw error
+        const appError = handleSupabaseError(error)
+        console.error('Error fetching users:', appError)
+        throw appError
       }
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -81,8 +83,9 @@ export function useUpdateUser() {
         if (error) throw error
         return data as UserProfile
       } catch (error: any) {
-        console.error('Error updating user:', error)
-        throw error
+        const appError = handleSupabaseError(error)
+        console.error('Error updating user:', appError)
+        throw appError
       }
     },
     onSuccess: (data) => {
@@ -112,8 +115,9 @@ export function useDeleteUser() {
         if (error) throw error
         return id
       } catch (error: any) {
-        console.error('Error deleting user:', error)
-        throw error
+        const appError = handleSupabaseError(error)
+        console.error('Error deleting user:', appError)
+        throw appError
       }
     },
     onSuccess: (_, id) => {

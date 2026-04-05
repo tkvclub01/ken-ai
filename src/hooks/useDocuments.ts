@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { Document, DocumentInsert } from '@/types'
 import { useMemo } from 'react'
+import { handleSupabaseError } from '@/lib/errors'
 
 export function useDocuments(filters?: {
   studentId?: string

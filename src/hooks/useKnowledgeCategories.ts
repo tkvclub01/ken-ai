@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import type { KnowledgeCategory, KnowledgeCategoryInsert, KnowledgeCategoryUpdate } from '@/types'
+import { handleSupabaseError } from '@/lib/errors'
 
 /**
  * Fetch all knowledge categories
@@ -32,8 +33,9 @@ export function useKnowledgeCategories(filters?: {
 
         return data as KnowledgeCategory[]
       } catch (error: any) {
-        console.error('useKnowledgeCategories query failed:', error)
-        throw error
+        const appError = handleSupabaseError(error)
+        console.error('useKnowledgeCategories query failed:', appError)
+        throw appError
       }
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -66,8 +68,9 @@ export function useKnowledgeCategory(id: string) {
 
         return data as KnowledgeCategory
       } catch (error: any) {
-        console.error('useKnowledgeCategory query failed:', error)
-        throw error
+        const appError = handleSupabaseError(error)
+        console.error('useKnowledgeCategory query failed:', appError)
+        throw appError
       }
     },
     enabled: !!id,
@@ -100,8 +103,9 @@ export function useCreateKnowledgeCategory() {
 
         return data as KnowledgeCategory
       } catch (error: any) {
-        console.error('useCreateKnowledgeCategory mutation failed:', error)
-        throw error
+        const appError = handleSupabaseError(error)
+        console.error('useCreateKnowledgeCategory mutation failed:', appError)
+        throw appError
       }
     },
     onSuccess: () => {
@@ -135,8 +139,9 @@ export function useUpdateKnowledgeCategory() {
 
         return data as KnowledgeCategory
       } catch (error: any) {
-        console.error('useUpdateKnowledgeCategory mutation failed:', error)
-        throw error
+        const appError = handleSupabaseError(error)
+        console.error('useUpdateKnowledgeCategory mutation failed:', appError)
+        throw appError
       }
     },
     onSuccess: (_, variables) => {
@@ -167,8 +172,9 @@ export function useDeleteKnowledgeCategory() {
           throw new Error(error.message)
         }
       } catch (error: any) {
-        console.error('useDeleteKnowledgeCategory mutation failed:', error)
-        throw error
+        const appError = handleSupabaseError(error)
+        console.error('useDeleteKnowledgeCategory mutation failed:', appError)
+        throw appError
       }
     },
     onSuccess: () => {

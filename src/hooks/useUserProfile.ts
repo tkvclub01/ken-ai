@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
+import { handleSupabaseError } from '@/lib/errors'
 
 interface UserProfile {
   id: string
@@ -35,8 +36,9 @@ export function useUserProfile(userId: string | undefined) {
         if (error) throw error
         return data as UserProfile
       } catch (error: any) {
-        console.error('Error fetching user profile:', error)
-        throw error
+        const appError = handleSupabaseError(error)
+        console.error('Error fetching user profile:', appError)
+        throw appError
       }
     },
     enabled: !!userId,
@@ -67,8 +69,9 @@ export function useUserPermissions(userId: string | undefined) {
         if (error) throw error
         return (data as string[]) || []
       } catch (error: any) {
-        console.error('Error fetching user permissions:', error)
-        throw error
+        const appError = handleSupabaseError(error)
+        console.error('Error fetching user permissions:', appError)
+        throw appError
       }
     },
     enabled: !!userId,
