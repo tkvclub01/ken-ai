@@ -269,6 +269,27 @@ export type KnowledgeCategory = Database['public']['Tables']['knowledge_categori
 export type KnowledgeCategoryInsert = Database['public']['Tables']['knowledge_categories']['Insert']
 export type KnowledgeCategoryUpdate = Database['public']['Tables']['knowledge_categories']['Update']
 
+// User Profile Type - SINGLE SOURCE OF TRUTH
+export interface UserProfile {
+  id: string
+  email: string
+  full_name: string | null
+  role: UserRole
+  avatar_url: string | null
+  is_active: boolean
+  email_verified: boolean
+  last_login_at: string | null
+  created_at: string
+  updated_at?: string
+  phone?: string
+  department?: string
+  location?: string
+  bio?: string
+}
+
+// User Role Type - SINGLE SOURCE OF TRUTH
+export type UserRole = 'admin' | 'manager' | 'counselor' | 'processor' | 'student'
+
 // Dashboard types
 export interface DashboardStats {
   totalStudents: number
