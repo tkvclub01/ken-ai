@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
@@ -44,6 +44,7 @@ export function RichTextEditor({
 }: RichTextEditorProps) {
   const [isAIProcessing, setIsAIProcessing] = useState(false)
   const [copied, setCopied] = useState(false)
+  const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const editor = useEditor({
     immediatelyRender: false, // Prevent SSR hydration errors
@@ -102,7 +103,16 @@ export function RichTextEditor({
     await navigator.clipboard.writeText(content)
     setCopied(true)
     toast.success('Content copied to clipboard')
-    setTimeout(() => setCopied(false), 2000)
+    
+    // Clear previous timeout if exists
+    if (copyTimeoutRef.current) {
+      clearTimeout(copyTimeoutRef.current)
+    }
+    
+    copyTimeoutRef.current = setTimeout(() => {
+      setCopied(false)
+      copyTimeoutRef.current = null
+    }, 2000)
   }
 
   return (

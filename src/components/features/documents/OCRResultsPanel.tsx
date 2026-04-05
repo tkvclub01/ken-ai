@@ -50,11 +50,13 @@ export function OCRResultsPanel({ document }: OCRResultsPanelProps) {
     setIsSaving(true)
     // TODO: Implement save functionality via API call
     // await updateDocument(document.id, { ocr_data: { ...ocrData, text: editedText } })
-    setTimeout(() => {
-      setIsSaving(false)
-      setIsEditing(false)
-      toast.success('OCR data updated successfully')
-    }, 1000)
+    
+    // Simulate save delay (remove when implementing real API)
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    
+    setIsSaving(false)
+    setIsEditing(false)
+    toast.success('OCR data updated successfully')
   }
 
   const getConfidenceColor = (value: number) => {

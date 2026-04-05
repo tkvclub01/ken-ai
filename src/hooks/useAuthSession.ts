@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
@@ -22,6 +22,7 @@ export function useAuthSession(options?: UseAuthSessionOptions) {
   const queryClient = useQueryClient()
   const router = useRouter()
   const supabase = createClient()
+  const mountedRef = useRef(true)
 
   /**
    * Kiểm tra session hiện tại
@@ -109,11 +110,15 @@ export function useAuthSession(options?: UseAuthSessionOptions) {
     })
     
     // Redirect sau delay ngắn để user thấy thông báo
-    setTimeout(() => {
-      options?.onTokenExpired?.()
-      router.push('/login')
-      router.refresh()
+    const timeoutId = setTimeout(() => {
+      if (mountedRef.current) {
+        options?.onTokenExpired?.()
+        router.push('/login')
+        router.refresh()
+      }
     }, 1000)
+    
+    return () => clearTimeout(timeoutId)
   }, [queryClient, router, options])
 
   /**
@@ -133,6 +138,7 @@ export function useAuthSession(options?: UseAuthSessionOptions) {
   // Setup auth event listeners ONLY - No interval check needed
   // Supabase automatically handles token refresh
   useEffect(() => {
+    mountedRef.current = true
     console.log('🔑 Setting up auth event listener')
     
     // Lắng nghe Supabase auth events
@@ -181,6 +187,7 @@ export function useAuthSession(options?: UseAuthSessionOptions) {
     // Cleanup
     return () => {
       console.log('🧹 Cleaning up auth event listener')
+      mountedRef.current = false
       subscription.unsubscribe()
     }
   }, [queryClient, supabase.auth])

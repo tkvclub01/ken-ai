@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { uploadKnowledgeFile } from '@/actions/knowledge'
 import { useKnowledgeCategories } from '@/hooks/useKnowledgeCategories'
@@ -24,6 +24,7 @@ export function KnowledgeUpload({ onUploadComplete }: KnowledgeUploadProps) {
   const [uploadProgress, setUploadProgress] = useState(0)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string>('')
+  const resetTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   
   // Fetch categories for dropdown
   const { data: categories, isLoading: categoriesLoading } = useKnowledgeCategories({ activeOnly: true })
@@ -93,12 +94,17 @@ export function KnowledgeUpload({ onUploadComplete }: KnowledgeUploadProps) {
           : `"${result.title}" has been added to knowledge base`,
       })
 
-      // Reset after delay
-      setTimeout(() => {
+      // Reset after delay with proper cleanup
+      if (resetTimeoutRef.current) {
+        clearTimeout(resetTimeoutRef.current)
+      }
+      
+      resetTimeoutRef.current = setTimeout(() => {
         setSelectedFile(null)
         setUploadStatus('idle')
         setUploadProgress(0)
         onUploadComplete?.()
+        resetTimeoutRef.current = null
       }, 2000)
 
     } catch (error: any) {
