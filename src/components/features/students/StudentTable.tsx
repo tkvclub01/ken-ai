@@ -26,6 +26,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { useStudents, useDeleteStudent } from '@/hooks/useStudents'
 import { Student } from '@/types'
 import { formatDate, getStatusColor, cn } from '@/lib/utils'
@@ -48,10 +58,12 @@ export function StudentTable() {
   
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set())
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [studentToDelete, setStudentToDelete] = useState<string | null>(null)
   const [stageFilter, setStageFilter] = useState<string>('all')
   const [sortField, setSortField] = useState<SortField>('created_at')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
-  const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set())
   const [page, setPage] = useState(1)
   const pageSize = 10
 
@@ -111,9 +123,15 @@ export function StudentTable() {
   }
 
   const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this student?')) {
-      await deleteStudent.mutateAsync(id)
-    }
+    setStudentToDelete(id)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDeleteStudent = async () => {
+    if (!studentToDelete) return
+    await deleteStudent.mutateAsync(studentToDelete)
+    setDeleteDialogOpen(false)
+    setStudentToDelete(null)
   }
 
   if (isLoading) {
@@ -339,6 +357,24 @@ export function StudentTable() {
           </Button>
         </div>
       </div>
+
+      {/* Delete Student Confirmation */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Student?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the student record and all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteStudent} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

@@ -1,15 +1,47 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
+import { createClient } from '@/lib/supabase/client'
 import { StatsCards } from '@/components/features/analytics/StatsCards'
 import { PipelineChart } from '@/components/features/analytics/PipelineChart'
 import { ActivityFeed } from '@/components/features/analytics/ActivityFeed'
 import { AISummaryWidget } from '@/components/features/analytics/AISummaryWidget'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, FileText, Settings, Shield, DollarSign, Activity } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function AdminDashboard() {
   const router = useRouter()
+  const supabase = createClient()
+
+  // Fetch real user count
+  const { data: userCount, isLoading: loadingUsers } = useQuery({
+    queryKey: ['admin-user-count'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+      
+      if (error) throw error
+      return count || 0
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+
+  // Fetch active students count
+  const { data: studentCount, isLoading: loadingStudents } = useQuery({
+    queryKey: ['admin-student-count'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('students')
+        .select('*', { count: 'exact', head: true })
+      
+      if (error) throw error
+      return count || 0
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -36,9 +68,13 @@ export default function AdminDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">24</div>
+            {loadingUsers ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{userCount || 0}</div>
+            )}
             <p className="text-xs text-muted-foreground mt-1">
-              +2 from last week
+              System users
             </p>
           </CardContent>
         </Card>
@@ -48,9 +84,13 @@ export default function AdminDashboard() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">156</div>
+            {loadingStudents ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{studentCount || 0}</div>
+            )}
             <p className="text-xs text-muted-foreground mt-1">
-              +12 from last week
+              Total students
             </p>
           </CardContent>
         </Card>

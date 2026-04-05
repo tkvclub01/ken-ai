@@ -19,6 +19,16 @@ import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -64,6 +74,12 @@ export function KnowledgeBaseSearch() {
     color: '#007AFF',
     icon: '',
   })
+  
+  // Delete confirmation dialogs
+  const [deleteDocDialogOpen, setDeleteDocDialogOpen] = useState(false)
+  const [docToDelete, setDocToDelete] = useState<string | null>(null)
+  const [deleteCatDialogOpen, setDeleteCatDialogOpen] = useState(false)
+  const [catToDelete, setCatToDelete] = useState<string | null>(null)
 
   // Fetch categories
   const { data: categories, isLoading: categoriesLoading } = useKnowledgeCategories()
@@ -157,9 +173,14 @@ export function KnowledgeBaseSearch() {
   }
 
   const handleDelete = async (docId: string) => {
-    if (!confirm('Are you sure you want to delete this document?')) return
+    setDocToDelete(docId)
+    setDeleteDocDialogOpen(true)
+  }
+
+  const confirmDeleteDocument = async () => {
+    if (!docToDelete) return
     
-    const response = await deleteKnowledge(docId)
+    const response = await deleteKnowledge(docToDelete)
     
     if (response.success) {
       toast.success('Document deleted')
@@ -170,6 +191,8 @@ export function KnowledgeBaseSearch() {
         description: response.error,
       })
     }
+    setDeleteDocDialogOpen(false)
+    setDocToDelete(null)
   }
 
   const openEditDialog = (doc: KnowledgeResult) => {
@@ -261,16 +284,23 @@ export function KnowledgeBaseSearch() {
   }
 
   const handleDeleteCategory = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this category?')) return
+    setCatToDelete(id)
+    setDeleteCatDialogOpen(true)
+  }
 
+  const confirmDeleteCategory = async () => {
+    if (!catToDelete) return
+    
     try {
-      await deleteCategory.mutateAsync(id)
+      await deleteCategory.mutateAsync(catToDelete)
       toast.success('Category deleted')
     } catch (error: any) {
       toast.error('Failed to delete category', {
         description: error.message,
       })
     }
+    setDeleteCatDialogOpen(false)
+    setCatToDelete(null)
   }
 
   return (
@@ -878,6 +908,42 @@ export function KnowledgeBaseSearch() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Document Confirmation */}
+      <AlertDialog open={deleteDocDialogOpen} onOpenChange={setDeleteDocDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Document?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the document and all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteDocument} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Category Confirmation */}
+      <AlertDialog open={deleteCatDialogOpen} onOpenChange={setDeleteCatDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Category?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. Articles in this category will become uncategorized.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteCategory} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

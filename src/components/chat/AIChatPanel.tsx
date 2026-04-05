@@ -10,6 +10,16 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
@@ -42,6 +52,8 @@ export function AIChatPanel() {
   const [emailPurpose, setEmailPurpose] = useState('')
   const [selectedStudent, setSelectedStudent] = useState<string>('')
   const [generatedEmail, setGeneratedEmail] = useState({ subject: '', body: '' })
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [convToDelete, setConvToDelete] = useState<string | null>(null)
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -126,17 +138,23 @@ export function AIChatPanel() {
 
   const handleDeleteConversation = async (convId: string, e: React.MouseEvent) => {
     e.stopPropagation()
-    
-    if (!confirm('Delete this conversation?')) return
+    setConvToDelete(convId)
+    setDeleteDialogOpen(true)
+  }
 
-    const response = await deleteConversation(convId)
+  const confirmDeleteConversation = async () => {
+    if (!convToDelete) return
+    
+    const response = await deleteConversation(convToDelete)
     if (response.success) {
       loadConversations()
-      if (currentConvId === convId) {
+      if (currentConvId === convToDelete) {
         handleNewChat()
       }
       toast.success('Conversation deleted')
     }
+    setDeleteDialogOpen(false)
+    setConvToDelete(null)
   }
 
   const handleGenerateEmail = async () => {
@@ -413,6 +431,24 @@ export function AIChatPanel() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Conversation?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the conversation and all its messages.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteConversation} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
