@@ -41,6 +41,7 @@ export default function ChatPage() {
   const [currentSessionId, setCurrentSessionId] = useState<string>('default')
   const scrollRef = useRef<HTMLDivElement>(null)
   const [isStreaming, setIsStreaming] = useState(false)
+  const [streamingContent, setStreamingContent] = useState('')
 
   // Fetch chat history with caching
   const { data: chatHistory, isLoading } = useQuery({
@@ -98,56 +99,46 @@ export default function ChatPage() {
     },
   })
 
-  // Simulate AI streaming response
+  // Simulate AI streaming response - OPTIMIZED: Use local state for streaming
   const simulateAIResponse = async () => {
     setIsStreaming(true)
+    setStreamingContent('')
     
-    const assistantMessage: Message = {
-      id: `ai-${Date.now()}`,
+    const assistantMessageId = `ai-${Date.now()}`
+
+    // Add placeholder assistant message immediately
+    const placeholderMessage: Message = {
+      id: assistantMessageId,
       role: 'assistant',
       content: '',
       timestamp: new Date(),
       isStreaming: true,
     }
 
-    // Add empty assistant message
     queryClient.setQueryData(
       ['chat-history', currentSessionId],
-      (old: Message[] = []) => [...old, assistantMessage]
+      (old: Message[] = []) => [...old, placeholderMessage]
     )
 
-    // Simulate streaming
+    // Simulate streaming with local state (no React Query updates during stream)
     const response = "This is a simulated AI response with streaming effect. In production, this would connect to your AI service (Gemini, OpenAI, etc.) and stream the response token by token for a better user experience."
     const words = response.split(' ')
     
     for (let i = 0; i < words.length; i++) {
       await new Promise(resolve => setTimeout(resolve, 50)) // Stream word by word
-      
-      queryClient.setQueryData(
-        ['chat-history', currentSessionId],
-        (old: Message[] = []) => {
-          const updated = [...old]
-          const lastIndex = updated.length - 1
-          if (updated[lastIndex]?.id === assistantMessage.id) {
-            updated[lastIndex] = {
-              ...updated[lastIndex],
-              content: words.slice(0, i + 1).join(' '),
-            }
-          }
-          return updated
-        }
-      )
+      setStreamingContent(words.slice(0, i + 1).join(' '))
     }
 
-    // Mark as complete
+    // COMMIT: Update React Query cache only once at the end
     queryClient.setQueryData(
       ['chat-history', currentSessionId],
       (old: Message[] = []) => {
         const updated = [...old]
         const lastIndex = updated.length - 1
-        if (updated[lastIndex]?.id === assistantMessage.id) {
+        if (updated[lastIndex]?.id === assistantMessageId) {
           updated[lastIndex] = {
             ...updated[lastIndex],
+            content: response,
             isStreaming: false,
           }
         }
@@ -155,6 +146,7 @@ export default function ChatPage() {
       }
     )
 
+    setStreamingContent('')
     setIsStreaming(false)
   }
 
@@ -227,9 +219,15 @@ export default function ChatPage() {
                 <p>Start a conversation with AI</p>
               </div>
             ) : (
-              messages.map((message) => (
-                <ChatMessage key={message.id} message={message} />
-              ))
+              messages.map((message, index) => {
+                // If this is the last message and it's streaming, show local streaming content
+                const isLastMessage = index === messages.length - 1
+                const displayMessage = isLastMessage && message.isStreaming && streamingContent
+                  ? { ...message, content: streamingContent }
+                  : message
+                
+                return <ChatMessage key={message.id} message={displayMessage} />
+              })
             )}
             <div ref={scrollRef} />
           </div>
