@@ -1,14 +1,21 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useUserData } from './useUserProfile'
+import { useNetworkStatus } from './useRealtimeSubscriptions'
+import { useAuthSession } from './useAuthSession'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { User } from '@supabase/supabase-js'
+
+// Singleton Supabase client - created once, reused everywhere
+const supabase = createClient()
 
 interface UserProfile {
   id: string
   email: string
   full_name: string | null
-  role: 'admin' | 'manager' | 'counselor' | 'processor'
+  role: 'admin' | 'manager' | 'counselor' | 'processor' | 'student'
   avatar_url: string | null
   is_active: boolean
   email_verified: boolean
@@ -26,152 +33,122 @@ export interface AuthUser extends User {
 }
 
 export function useAuth() {
-  const [user, setUser] = useState<AuthUser | null>(null)
-  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const supabase = createClient()
+  const queryClient = useQueryClient()
 
-  // Fetch user profile and permissions
-  const fetchUserData = useCallback(async (userId: string) => {
-    try {
-      // Fetch profile
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single()
+  // Use React Query to cache session - fetches only ONCE until logout
+  const { data: authUser, isLoading: sessionLoading } = useQuery({
+    queryKey: ['auth-session'],
+    queryFn: async () => {
+      const { data: { session }, error } = await supabase.auth.getSession()
+      if (error) throw error
+      return session?.user || null
+    },
+    staleTime: Infinity, // Never refetch automatically
+    gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes after unmount
+    retry: 1,
+  })
 
-      if (profileError) throw profileError
+  // Get user ID from auth state - memoize to prevent unnecessary re-renders
+  const userId = useMemo(() => authUser?.id, [authUser?.id])
 
-      // Fetch permissions
-      const { data: permData, error: permError } = await supabase.rpc(
-        'get_user_permissions',
-        { user_id: userId }
-      )
+  // Use React Query for profile and permissions (with caching)
+  const { 
+    profile, 
+    permissions, 
+    isLoading: userDataLoading,
+    refetch: refetchUserData,
+    isError: userDataError
+  } = useUserData(userId)
 
-      if (permError) throw permError
+  // REALTIME SUBSCRIPTION DISABLED - Using React Query caching instead
+  // Profile data is cached for 10 minutes (staleTime) and fetched from DB
+  // When admin updates user role, manually invalidate:
+  // queryClient.invalidateQueries({ queryKey: ['user-profile', userId] })
+  
+  // Monitor network status and revalidate on reconnect
+  useNetworkStatus()
 
-      return {
-        profile: profile as UserProfile,
-        permissions: (permData as string[]) || []
-      }
-    } catch (err: any) {
-      console.error('Error fetching user data:', err)
-      return null
-    }
-  }, [supabase])
-
-  useEffect(() => {
-    // Get initial session
-    const getSession = async () => {
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-        
-        if (sessionError) throw sessionError
-
-        if (session?.user) {
-          const userData = await fetchUserData(session.user.id)
-          
-          if (userData) {
-            setUser({
-              ...session.user,
-              profile: userData.profile,
-              permissions: userData.permissions
-            })
-          } else {
-            setUser(session.user)
-          }
-        }
-      } catch (err: any) {
-        setError(err.message)
-      } finally {
-        setLoading(false)
+  // Manage session and token lifecycle
+  const { checkSession, refreshSession, forceLogout } = useAuthSession({
+    onTokenExpired: () => {
+      // Clear session cache to force re-fetch on next render
+      queryClient.setQueryData(['auth-session'], null)
+      setError('Phiên đăng nhập đã hết hạn')
+    },
+    onTokenRefreshed: () => {
+      console.log('✅ Token refreshed, user data will be refetched')
+      // Refetch session with new token
+      queryClient.invalidateQueries({ queryKey: ['auth-session'] })
+    },
+    onAuthStateChange: (event, userId) => {
+      // Update session cache based on auth events
+      if (event === 'SIGNED_OUT' || !userId) {
+        queryClient.setQueryData(['auth-session'], null)
+      } else {
+        // Invalidate to refetch with latest data
+        queryClient.invalidateQueries({ queryKey: ['auth-session'] })
       }
     }
+  })
 
-    getSession()
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        const userData = await fetchUserData(session.user.id)
-        setUser({
-          ...session.user,
-          profile: userData?.profile,
-          permissions: userData?.permissions
-        })
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null)
-      } else if (session?.user) {
-        // Token refreshed or user updated
-        const userData = await fetchUserData(session.user.id)
-        setUser({
-          ...session.user,
-          profile: userData?.profile,
-          permissions: userData?.permissions
-        })
-      }
-    })
-
-    return () => {
-      subscription.unsubscribe()
-    }
-  }, [fetchUserData, supabase])
+  // Construct the complete user object
+  const user: AuthUser | null = authUser ? {
+    ...authUser,
+    profile,
+    permissions
+  } : null
 
   // Check if user has specific permission
   const hasPermission = useCallback((permission: string): boolean => {
-    if (!user?.permissions) return false
-    return user.permissions.includes(permission)
-  }, [user])
+    if (!permissions) return false
+    return permissions.includes(permission)
+  }, [permissions])
 
   // Check if user has ANY of the specified permissions
-  const hasAnyPermission = useCallback((permissions: string[]): boolean => {
-    if (!user?.permissions) return false
-    return permissions.some(perm => user.permissions!.includes(perm))
-  }, [user])
+  const hasAnyPermission = useCallback((permissionsList: string[]): boolean => {
+    if (!permissions) return false
+    return permissionsList.some(perm => permissions.includes(perm))
+  }, [permissions])
 
   // Check if user has ALL of the specified permissions
-  const hasAllPermissions = useCallback((permissions: string[]): boolean => {
-    if (!user?.permissions) return false
-    return permissions.every(perm => user.permissions!.includes(perm))
-  }, [user])
+  const hasAllPermissions = useCallback((permissionsList: string[]): boolean => {
+    if (!permissions) return false
+    return permissionsList.every(perm => permissions.includes(perm))
+  }, [permissions])
 
   // Check user role
   const hasRole = useCallback((roles: string | string[]): boolean => {
-    if (!user?.profile?.role) return false
+    if (!profile?.role) return false
     const roleList = Array.isArray(roles) ? roles : [roles]
-    return roleList.includes(user.profile.role)
-  }, [user])
+    return roleList.includes(profile.role)
+  }, [profile])
 
   // Sign out
   const signOut = useCallback(async () => {
     try {
       await supabase.auth.signOut()
-      setUser(null)
+      // Clear all caches
+      queryClient.clear()
+      // Redirect to login page after sign out
+      window.location.href = '/login'
     } catch (err: any) {
       setError(err.message)
     }
-  }, [supabase])
+  }, [supabase, queryClient])
 
-  // Refresh user data
-  const refreshUser = useCallback(async () => {
-    if (!user?.id) return
-    
-    const userData = await fetchUserData(user.id)
-    if (userData) {
-      setUser(prev => prev ? {
-        ...prev,
-        profile: userData.profile,
-        permissions: userData.permissions
-      } : null)
+  // Refresh user data (manually trigger cache invalidation)
+  const refreshUser = useCallback(() => {
+    if (userId) {
+      refetchUserData()
     }
-  }, [user?.id, fetchUserData])
+  }, [userId, refetchUserData])
 
   return {
     user,
     profile: user?.profile,
     permissions: user?.permissions,
-    loading,
+    loading: sessionLoading || userDataLoading,
     error,
     isAuthenticated: !!user,
     hasPermission,
@@ -179,7 +156,11 @@ export function useAuth() {
     hasAllPermissions,
     hasRole,
     signOut,
-    refreshUser
+    refreshUser,
+    // Session management methods
+    checkSession,
+    refreshSession,
+    forceLogout,
   }
 }
 

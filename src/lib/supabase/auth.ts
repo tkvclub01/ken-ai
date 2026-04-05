@@ -11,13 +11,53 @@ export async function signIn(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { error, data } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
 
   if (error) {
     redirect(`/login?error=${encodeURIComponent(error.message)}`)
+  }
+
+  // Get user role and update last login
+  if (data.user) {
+    try {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single()
+
+      if (profileError) {
+        console.error('Error fetching user profile:', profileError.message)
+      } else {
+        // Update last login time
+        await supabase
+          .from('profiles')
+          .update({ last_login_at: new Date().toISOString() })
+          .eq('id', data.user.id)
+
+        const role = profile?.role || 'counselor'
+
+        // Role-based redirect
+        let redirectPath = '/'
+        if (role === 'admin') {
+          redirectPath = '/dashboard/admin'
+        } else if (['manager', 'counselor', 'processor'].includes(role)) {
+          redirectPath = '/dashboard/employee'
+        } else {
+          // student or unknown role
+          redirectPath = '/dashboard/student'
+        }
+
+        revalidatePath('/', 'layout')
+        redirect(redirectPath)
+      }
+    } catch (err) {
+      console.error('Unexpected error during login role check:', err)
+      // Fallback to default redirect
+    }
   }
 
   revalidatePath('/', 'layout')
@@ -53,6 +93,9 @@ export async function signUp(formData: FormData) {
     }
 
     console.log('Signup successful, user created:', data.user?.id)
+    
+    // Note: Profile will be automatically created by database trigger (handle_new_user)
+    // No need to verify here as RLS may block immediate read by new user
     
     revalidatePath('/', 'layout')
     redirect('/login?message=Check your email to confirm your account')

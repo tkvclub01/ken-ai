@@ -8,12 +8,30 @@ import { StudentForm } from '@/components/features/students/StudentForm'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { LayoutGrid, Table as TableIcon } from 'lucide-react'
+import { useCreateStudent } from '@/hooks/useStudents'
+import { toast } from 'sonner'
 
 export default function StudentsPage() {
   const [view, setView] = useState<'kanban' | 'table'>('kanban')
   const [selectedStudent, setSelectedStudent] = useState(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [isFormOpen, setIsFormOpen] = useState(false)
+  
+  // Hook to create student
+  const createStudentMutation = useCreateStudent()
+  
+  const handleCreateStudent = async (data: any) => {
+    try {
+      await createStudentMutation.mutateAsync(data)
+      toast.success('Student created successfully')
+      setIsFormOpen(false)
+    } catch (error: any) {
+      console.error('Failed to create student:', error)
+      toast.error('Failed to create student', {
+        description: error.message || 'Please try again'
+      })
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -55,7 +73,7 @@ export default function StudentsPage() {
       <StudentForm
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
-        onSubmit={(data) => console.log('Creating student:', data)}
+        onSubmit={handleCreateStudent}
       />
     </div>
   )

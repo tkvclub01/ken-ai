@@ -128,3 +128,32 @@
     @apply font-sans;
   }
 }
+
+@layer utilities {
+  /* Smooth scrolling */
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+
+  /* Better text rendering */
+  .text-rendering-optimize {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Glassmorphism effect */
+  .glass {
+    @apply bg-background/80 backdrop-blur-md border border-border/50;
+  }
+
+  /* Subtle gradient backgrounds */
+  .gradient-subtle {
+    @apply bg-gradient-to-br from-background via-background to-muted/20;
+  }
+
+  /* Enhanced focus states */
+  .focus-enhanced:focus-visible {
+    @apply outline-none ring-2 ring-primary/30 ring-offset-2 ring-offset-background transition-all duration-200;
+  }
+}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { DndContext, DragEndEvent } from '@dnd-kit/core'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -66,7 +66,7 @@ export function KanbanBoard() {
       <DndContext onDragEnd={handleDragEnd}>
         <div className="flex gap-4 overflow-x-auto pb-4 h-[calc(100%-60px)]">
           {PIPELINE_STAGES.map((stage) => (
-            <PipelineColumn
+            <MemoizedPipelineColumn
               key={stage.id}
               stage={stage}
               students={students.filter((s) => s.current_stage === stage.id)}
@@ -105,7 +105,7 @@ function PipelineColumn({ stage, students, onDragStart }: PipelineColumnProps) {
       <ScrollArea className="h-[calc(100%-50px)]">
         <div className="space-y-3">
           {students.map((student) => (
-            <StudentCard
+            <MemoizedStudentCard
               key={student.id}
               student={student}
               onDragStart={() => onDragStart(student)}
@@ -121,6 +121,9 @@ function PipelineColumn({ stage, students, onDragStart }: PipelineColumnProps) {
     </div>
   )
 }
+
+// Memoize to prevent re-renders when other columns change
+const MemoizedPipelineColumn = memo(PipelineColumn)
 
 interface StudentCardProps {
   student: Student
@@ -175,3 +178,6 @@ function StudentCard({ student, onDragStart }: StudentCardProps) {
     </Card>
   )
 }
+
+// Memoize to prevent re-renders when parent state changes
+const MemoizedStudentCard = memo(StudentCard)

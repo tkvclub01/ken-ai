@@ -19,6 +19,27 @@ export async function searchKnowledge(
   try {
     const supabase = await createClient()
 
+    // Handle empty query - return popular documents instead of generating embedding
+    if (!query || query.trim() === '') {
+      const { data, error } = await supabase
+        .from('knowledge_base')
+        .select('*')
+        .eq('verified', true)
+        .order('view_count', { ascending: false })
+        .limit(10)
+
+      if (error) throw error
+
+      return {
+        success: true,
+        results: (data || []).map((doc: any) => ({
+          ...doc,
+          similarity: 0,
+        })),
+        query,
+      }
+    }
+
     // Generate embedding cho query
     const queryEmbedding = await generateEmbedding(query)
 
@@ -281,6 +302,104 @@ export async function deleteKnowledge(documentId: string) {
     }
   } catch (error: any) {
     console.error('Delete error:', error)
+    return {
+      success: false,
+      error: error.message,
+    }
+  }
+}
+
+/**
+ * Upload and process document/image for knowledge ingestion
+ */
+export async function uploadKnowledgeFile(
+  file: File,
+  categoryId?: string
+) {
+  try {
+    const supabase = await createClient()
+    
+    const user = await supabase.auth.getUser()
+    const userId = user.data.user?.id
+
+    if (!userId) {
+      throw new Error('User not authenticated')
+    }
+
+    // Validate file type
+    const allowedTypes = [
+      'application/pdf',
+      'text/plain',
+      'text/markdown',
+      'image/png',
+      'image/jpeg',
+      'image/jpg',
+      'image/webp',
+    ]
+
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error(`Unsupported file type: ${file.type}`)
+    }
+
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024
+    if (file.size > maxSize) {
+      throw new Error('File size exceeds 10MB limit')
+    }
+
+    // Upload file to Supabase Storage
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+    const filePath = `knowledge-uploads/${userId}/${fileName}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('documents-original')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      })
+
+    if (uploadError) throw uploadError
+
+    // Get signed URL for processing
+    const { data: urlData } = await supabase.storage
+      .from('documents-original')
+      .createSignedUrl(filePath, 300) // 5 minutes expiry
+
+    if (!urlData?.signedUrl) {
+      throw new Error('Failed to generate file URL')
+    }
+
+    // Call Edge Function to process document
+    const { data: processedData, error: processError } = await supabase.functions.invoke(
+      'process-document',
+      {
+        body: {
+          fileUrl: urlData.signedUrl,
+          fileName: file.name,
+          fileType: file.type,
+          categoryId: categoryId || null,
+        },
+      }
+    )
+
+    if (processError) throw processError
+    if (!processedData?.success) {
+      throw new Error(processedData?.error || 'Document processing failed')
+    }
+
+    revalidatePath('/knowledge')
+
+    return {
+      success: true,
+      knowledgeId: processedData.knowledgeId,
+      title: processedData.title,
+      sourceType: processedData.sourceType,
+      chunksCreated: processedData.chunksCreated || 1,
+      message: processedData.message || 'Document processed and added to knowledge base',
+    }
+  } catch (error: any) {
+    console.error('Upload knowledge file error:', error)
     return {
       success: false,
       error: error.message,

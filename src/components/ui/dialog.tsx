@@ -11,8 +11,50 @@ function Dialog({ ...props }: DialogPrimitive.Root.Props) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />
 }
 
-function DialogTrigger({ ...props }: DialogPrimitive.Trigger.Props) {
-  return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />
+function DialogTrigger({ 
+  children, 
+  asChild = false,
+  ...props 
+}: DialogPrimitive.Trigger.Props & { 
+  children?: React.ReactNode
+  asChild?: boolean
+}) {
+  // Check if children is a Button component
+  const isButtonChild = React.isValidElement(children) && (
+    (children.type as any)?.displayName === 'Button' ||
+    (children.type as any)?.name === 'Button'
+  )
+  
+  // When child is a Button, extract its props and merge with DialogPrimitive.Trigger
+  // This avoids nested button elements
+  if (asChild || isButtonChild) {
+    const buttonElement = children as React.ReactElement<{ children?: React.ReactNode }>
+    const buttonProps = buttonElement.props || {}
+    const { children: buttonChildren, ...restButtonProps } = buttonProps
+    const mergedProps = {
+      ...restButtonProps,
+      ...props,
+      'data-slot': 'dialog-trigger',
+    }
+    
+    return (
+      <DialogPrimitive.Trigger 
+        {...mergedProps}
+      >
+        {buttonChildren}
+      </DialogPrimitive.Trigger>
+    )
+  }
+  
+  // Default: render DialogPrimitive.Trigger which renders its own button
+  return (
+    <DialogPrimitive.Trigger 
+      data-slot="dialog-trigger"
+      {...props}
+    >
+      {children}
+    </DialogPrimitive.Trigger>
+  )
 }
 
 function DialogPortal({ ...props }: DialogPrimitive.Portal.Props) {

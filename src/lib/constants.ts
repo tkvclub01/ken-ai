@@ -45,6 +45,13 @@ export const NAVIGATION: NavItem[] = [
     group: 'settings',
   },
   {
+    title: 'Employee Management',
+    href: '/settings/users',
+    icon: 'Users',
+    group: 'settings',
+    badge: 'Admin',
+  },
+  {
     title: 'Settings',
     href: '/settings',
     icon: 'Settings',

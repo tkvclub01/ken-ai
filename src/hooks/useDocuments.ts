@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { Document, DocumentInsert } from '@/types'
+import { useMemo } from 'react'
 
 export function useDocuments(filters?: {
   studentId?: string
@@ -10,9 +11,16 @@ export function useDocuments(filters?: {
   ocrStatus?: string
 }) {
   const supabase = createClient()
+  
+  // Stabilize filters object reference
+  const stableFilters = useMemo(() => filters || {}, [
+    filters?.studentId,
+    filters?.documentType,
+    filters?.ocrStatus
+  ])
 
   return useQuery({
-    queryKey: ['documents', filters],
+    queryKey: ['documents', stableFilters],
     queryFn: async () => {
       let query = supabase.from('documents').select('*')
 
@@ -24,6 +32,8 @@ export function useDocuments(filters?: {
       if (error) throw error
       return data as Document[]
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10,   // 10 minutes
   })
 }
 
@@ -42,6 +52,8 @@ export function useDocument(id: string) {
       return data as Document
     },
     enabled: !!id,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
   })
 }
 
@@ -59,8 +71,9 @@ export function useCreateDocument() {
       if (error) throw error
       return data as Document
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['documents'] })
+      queryClient.setQueryData(['document', data.id], data)
     },
   })
 }
@@ -80,9 +93,10 @@ export function useUpdateDocument() {
       if (error) throw error
       return updatedData as Document
     },
-    onSuccess: () => {
+    onSuccess: (updatedData, variables) => {
       queryClient.invalidateQueries({ queryKey: ['documents'] })
-      queryClient.invalidateQueries({ queryKey: ['document'] })
+      queryClient.invalidateQueries({ queryKey: ['document', variables.id] })
+      queryClient.setQueryData(['document', variables.id], updatedData)
     },
   })
 }

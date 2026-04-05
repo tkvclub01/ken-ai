@@ -27,13 +27,22 @@ export async function GET(request: Request) {
       )
     }
 
-    // Get user profile to check if first login
+    // Get user profile to determine role
     if (data.user) {
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('*')
+        .select('role')
         .eq('id', data.user.id)
         .single()
+
+      if (profileError || !profile) {
+        console.error('Profile not found or not accessible:', profileError?.message)
+        // Profile might not exist yet - this shouldn't happen with trigger but handle gracefully
+        // Redirect to login with message
+        return NextResponse.redirect(
+          new URL('/login?error=Profile+not+found.+Please+contact+support.', requestUrl.origin)
+        )
+      }
 
       // Update last login
       await supabase
@@ -41,8 +50,19 @@ export async function GET(request: Request) {
         .update({ last_login_at: new Date().toISOString() })
         .eq('id', data.user.id)
 
-      // Redirect based on role
-      const redirectTo = '/dashboard'
+      // Role-based redirect
+      const role = profile.role as string
+      let redirectTo = '/'
+      
+      if (role === 'admin') {
+        redirectTo = '/dashboard/admin'
+      } else if (['manager', 'counselor', 'processor'].includes(role)) {
+        redirectTo = '/dashboard/employee'
+      } else {
+        // student or unknown role
+        redirectTo = '/dashboard/student'
+      }
+
       return NextResponse.redirect(new URL(redirectTo, requestUrl.origin))
     }
   }

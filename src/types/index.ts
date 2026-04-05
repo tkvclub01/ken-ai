@@ -188,6 +188,44 @@ export interface Database {
           created_at?: string
         }
       }
+      knowledge_categories: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          color: string
+          icon: string | null
+          is_active: boolean
+          article_count: number
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          color?: string
+          icon?: string | null
+          is_active?: boolean
+          article_count?: number
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          color?: string
+          icon?: string | null
+          is_active?: boolean
+          article_count?: number
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -227,6 +265,9 @@ export type KnowledgeBaseInsert = Database['public']['Tables']['knowledge_base']
 
 export type PipelineStage = Database['public']['Tables']['pipeline_stages']['Row']
 export type AuditLog = Database['public']['Tables']['audit_logs']['Row']
+export type KnowledgeCategory = Database['public']['Tables']['knowledge_categories']['Row']
+export type KnowledgeCategoryInsert = Database['public']['Tables']['knowledge_categories']['Insert']
+export type KnowledgeCategoryUpdate = Database['public']['Tables']['knowledge_categories']['Update']
 
 // Dashboard types
 export interface DashboardStats {

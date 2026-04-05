@@ -1,7 +1,7 @@
 "use client"
 
 import Link from 'next/link'
-import { useState, useTransition } from 'react'
+import { useState, useTransition, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Mail, Lock, User, Loader2, ArrowLeft } from 'lucide-react'
 import { signUp } from '@/lib/supabase/auth'
 
-export default function SignUpPage() {
+function SignUpForm() {
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
   const [localError, setLocalError] = useState<string | null>(null)
@@ -147,5 +147,17 @@ export default function SignUpPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <SignUpForm />
+    </Suspense>
   )
 }

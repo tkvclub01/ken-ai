@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Table,
   TableBody,
@@ -49,15 +49,25 @@ export function DocumentTable({ onSelectDocument, onViewDetail }: DocumentTableP
   const { data: documents = [], isLoading } = useDocuments()
   const deleteDocument = useDeleteDocument()
   const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [sortField, setSortField] = useState<SortField>('created_at')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
+  // Debounce search input to prevent excessive re-renders
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery)
+    }, 300) // 300ms debounce for local filtering
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
   const filteredDocuments = documents
     .filter((doc: Document) => {
-      const matchesSearch = doc.file_name.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesSearch = doc.file_name.toLowerCase().includes(debouncedSearch.toLowerCase())
       const matchesStatus = statusFilter === 'all' || doc.ocr_status === statusFilter
       return matchesSearch && matchesStatus
     })

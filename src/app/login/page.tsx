@@ -1,7 +1,7 @@
 "use client"
 
 import Link from 'next/link'
-import { useState, useTransition } from 'react'
+import { useState, useTransition, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Mail, Lock, Loader2 } from 'lucide-react'
 import { signIn, sendMagicLink, signInWithGoogle } from '@/lib/supabase/auth'
 
-export default function LoginPage() {
+function LoginForm() {
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
   
@@ -156,5 +156,17 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }

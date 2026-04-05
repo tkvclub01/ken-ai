@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useState } from 'react'
+import { useDashboardStats, usePipelineData, useMonthlyTrends, useCountryDistribution } from '@/hooks/useAnalytics'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
@@ -16,156 +16,13 @@ import { Users, FileText, CheckCircle, TrendingUp, DollarSign, Clock } from 'luc
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D']
 
 export function AnalyticsDashboard() {
-  const supabase = createClient()
-  const [loading, setLoading] = useState(true)
-  const [stats, setStats] = useState({
-    totalStudents: 0,
-    activeStudents: 0,
-    visaApproved: 0,
-    visaRejected: 0,
-    totalDocuments: 0,
-    pendingDocuments: 0,
-    totalRevenue: 0,
-    pendingRevenue: 0,
-  })
-  const [pipelineData, setPipelineData] = useState<any[]>([])
-  const [monthlyData, setMonthlyData] = useState<any[]>([])
-  const [counselorPerformance, setCounselorPerformance] = useState<any[]>([])
-  const [countryDistribution, setCountryDistribution] = useState<any[]>([])
+  // Use React Query hooks with built-in caching
+  const { data: stats, isLoading: statsLoading } = useDashboardStats()
+  const { data: pipelineData, isLoading: pipelineLoading } = usePipelineData()
+  const { data: monthlyData, isLoading: monthlyLoading } = useMonthlyTrends()
+  const { data: countryDistribution, isLoading: countriesLoading } = useCountryDistribution()
 
-  useEffect(() => {
-    loadDashboardData()
-  }, [])
-
-  async function loadDashboardData() {
-    try {
-      // Load basic stats
-      await Promise.all([
-        loadStudentStats(),
-        loadPipelineStats(),
-        loadMonthlyTrend(),
-        loadCounselorPerformance(),
-        loadCountryDistribution(),
-      ])
-    } catch (error) {
-      console.error('Error loading dashboard data:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  async function loadStudentStats() {
-    const { data: students } = await supabase
-      .from('students')
-      .select('status, intended_country, gpa')
-    
-    const totalStudents = students?.length || 0
-    const activeStudents = students?.filter(s => s.status === 'active').length || 0
-    
-    setStats(prev => ({
-      ...prev,
-      totalStudents,
-      activeStudents,
-    }))
-  }
-
-  async function loadPipelineStats() {
-    const { data: pipeline } = await supabase
-      .from('student_pipeline')
-      .select(`
-        current_stage_id,
-        pipeline_stages (
-          name,
-          color
-        )
-      `)
-    
-    const { data: documents } = await supabase
-      .from('documents')
-      .select('ocr_status')
-
-    // Group by stage
-    const stageCounts: Record<string, number> = {}
-    pipeline?.forEach(p => {
-      const stageName = (p.pipeline_stages as any)?.name || 'Unknown'
-      stageCounts[stageName] = (stageCounts[stageName] || 0) + 1
-    })
-
-    const pipelineChartData = Object.entries(stageCounts).map(([name, count], index) => ({
-      name,
-      value: count,
-      color: COLORS[index % COLORS.length],
-    }))
-
-    const pendingDocs = documents?.filter(d => d.ocr_status === 'pending' || d.ocr_status === 'processing').length || 0
-    const totalDocs = documents?.length || 0
-
-    setPipelineData(pipelineChartData)
-    setStats(prev => ({
-      ...prev,
-      totalDocuments: totalDocs,
-      pendingDocuments: pendingDocs,
-    }))
-  }
-
-  async function loadMonthlyTrend() {
-    // Simulated monthly data (in production, query by created_at)
-    const mockData = [
-      { month: 'Jan', students: 12, revenue: 24000, visas: 8 },
-      { month: 'Feb', students: 19, revenue: 38000, visas: 12 },
-      { month: 'Mar', students: 15, revenue: 30000, visas: 10 },
-      { month: 'Apr', students: 22, revenue: 44000, visas: 15 },
-      { month: 'May', students: 28, revenue: 56000, visas: 18 },
-      { month: 'Jun', students: 25, revenue: 50000, visas: 16 },
-    ]
-    setMonthlyData(mockData)
-    
-    const totalRevenue = mockData.reduce((sum, m) => sum + m.revenue, 0)
-    setStats(prev => ({ ...prev, totalRevenue }))
-  }
-
-  async function loadCounselorPerformance() {
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, full_name, role')
-      .eq('role', 'counselor')
-
-    const counselorData = await Promise.all(
-      profiles?.map(async (counselor) => {
-        const { count: studentCount } = await supabase
-          .from('students')
-          .select('*', { count: 'exact', head: true })
-          .eq('counselor_id', counselor.id)
-
-        return {
-          name: counselor.full_name || 'Unnamed',
-          students: studentCount || 0,
-          conversion: Math.round(Math.random() * 30 + 60), // Mock conversion rate
-        }
-      }) || []
-    )
-
-    setCounselorPerformance(counselorData)
-  }
-
-  async function loadCountryDistribution() {
-    const { data: students } = await supabase
-      .from('students')
-      .select('intended_country')
-
-    const countryCounts: Record<string, number> = {}
-    students?.forEach(s => {
-      const country = s.intended_country || 'Unspecified'
-      countryCounts[country] = (countryCounts[country] || 0) + 1
-    })
-
-    const countryData = Object.entries(countryCounts)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 5)
-
-    setCountryDistribution(countryData)
-  }
+  const loading = statsLoading || pipelineLoading || monthlyLoading || countriesLoading
 
   if (loading) {
     return (
@@ -191,9 +48,9 @@ export function AnalyticsDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalStudents}</div>
+            <div className="text-2xl font-bold">{stats?.totalStudents || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.activeStudents} active students
+              {stats?.activeStudents || 0} active students
             </p>
           </CardContent>
         </Card>
@@ -204,9 +61,9 @@ export function AnalyticsDashboard() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalDocuments}</div>
+            <div className="text-2xl font-bold">{stats?.totalDocuments || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.pendingDocuments} pending verification
+              {stats?.pendingDocuments || 0} pending verification
             </p>
           </CardContent>
         </Card>
@@ -217,7 +74,7 @@ export function AnalyticsDashboard() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.totalRevenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold">${(stats?.totalRevenue || 0).toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
               Across all months
             </p>
@@ -299,7 +156,7 @@ export function AnalyticsDashboard() {
                       fill="#8884d8"
                       dataKey="value"
                     >
-                      {countryDistribution.map((entry, index) => (
+                      {countryDistribution?.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
@@ -339,19 +196,8 @@ export function AnalyticsDashboard() {
               <CardDescription>Student load and conversion rates by counselor</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {counselorPerformance.map((counselor, index) => (
-                  <div key={index} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{counselor.name}</span>
-                      <div className="flex items-center gap-4">
-                        <Badge variant="secondary">{counselor.students} students</Badge>
-                        <Badge>{counselor.conversion}% conversion</Badge>
-                      </div>
-                    </div>
-                    <Progress value={counselor.conversion} className="h-2" />
-                  </div>
-                ))}
+              <div className="text-center py-8 text-muted-foreground">
+                <p>Counselor performance tracking coming soon</p>
               </div>
             </CardContent>
           </Card>

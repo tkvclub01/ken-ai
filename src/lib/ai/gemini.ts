@@ -132,18 +132,55 @@ export async function streamAIResponse(
 }
 
 /**
- * Generate embedding vector for knowledge base storage
+ * Generate real embedding vector using Google's gemini-embedding-001 model
+ * Returns 768-dimensional vector optimized for semantic search
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
-  // Note: Gemini doesn't have a direct embedding API yet
-  // We'll use a placeholder - in production, use a dedicated embedding service
-  // or wait for Google's embedding models
-  
-  // For now, return a dummy vector (1536 dimensions to match OpenAI standard)
-  // TODO: Replace with actual embedding generation when available
-  const dummyVector = new Array(1536).fill(0).map(() => Math.random())
-  
-  return dummyVector
+  try {
+    const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY
+    
+    if (!apiKey) {
+      throw new Error('GOOGLE_GENERATIVE_AI_API_KEY not configured')
+    }
+
+    // Truncate to model's max input (2048 tokens ≈ 8000 characters)
+    const truncatedText = text.slice(0, 8000)
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'models/gemini-embedding-001',
+          content: {
+            parts: [{ text: truncatedText }]
+          },
+          taskType: 'RETRIEVAL_DOCUMENT', // Optimized for search retrieval
+        }),
+      }
+    )
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      console.error('Embedding API error:', errorData)
+      throw new Error(`Embedding API failed: ${errorData.error?.message || response.statusText}`)
+    }
+
+    const data = await response.json()
+
+    if (!data.embedding?.values) {
+      console.error('Invalid embedding response:', data)
+      throw new Error('Failed to generate embedding - invalid response format')
+    }
+
+    return data.embedding.values // Returns 768-dim vector
+  } catch (error) {
+    console.error('Embedding generation failed:', error)
+    throw error
+  }
 }
 
 /**

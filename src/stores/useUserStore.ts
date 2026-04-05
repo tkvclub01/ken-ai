@@ -29,6 +29,11 @@ const defaultPreferences: UserPreferences = {
   },
 }
 
+/**
+ * Zustand store for user preferences only
+ * Note: User profile and permissions are now managed by React Query
+ * This store is kept for UI preferences that don't need server sync
+ */
 export const useUserStore = create<UserState>()(
   persist(
     (set) => ({
@@ -43,7 +48,7 @@ export const useUserStore = create<UserState>()(
     }),
     {
       name: STORAGE_KEYS.userPreferences,
-      partialize: (state) => ({ preferences: state.preferences }),
+      partialize: (state) => ({ preferences: state.preferences }), // Only persist preferences, not auth state
     }
   )
 )

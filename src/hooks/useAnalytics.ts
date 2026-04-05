@@ -36,6 +36,8 @@ export function useDashboardStats() {
 
       return stats
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10,   // 10 minutes
   })
 }
 
@@ -73,6 +75,8 @@ export function usePipelineData() {
 
       return pipelineData
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10,   // 10 minutes
   })
 }
 
@@ -109,6 +113,8 @@ export function useMonthlyTrends() {
 
       return monthlyData
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10,   // 10 minutes
   })
 }
 
@@ -140,6 +146,8 @@ export function useCountryDistribution() {
 
       return distribution.sort((a, b) => b.count - a.count).slice(0, 10)
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10,   // 10 minutes
   })
 }
 

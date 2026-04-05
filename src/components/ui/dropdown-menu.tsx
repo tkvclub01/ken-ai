@@ -14,8 +14,50 @@ function DropdownMenuPortal({ ...props }: MenuPrimitive.Portal.Props) {
   return <MenuPrimitive.Portal data-slot="dropdown-menu-portal" {...props} />
 }
 
-function DropdownMenuTrigger({ ...props }: MenuPrimitive.Trigger.Props) {
-  return <MenuPrimitive.Trigger data-slot="dropdown-menu-trigger" {...props} />
+function DropdownMenuTrigger({ 
+  children, 
+  asChild = false,
+  ...props 
+}: MenuPrimitive.Trigger.Props & { 
+  children?: React.ReactNode
+  asChild?: boolean
+}) {
+  // Check if children is a Button component
+  const isButtonChild = React.isValidElement(children) && (
+    (children.type as any)?.displayName === 'Button' ||
+    (children.type as any)?.name === 'Button'
+  )
+  
+  // When child is a Button, extract its props and merge with MenuPrimitive.Trigger
+  // This avoids nested button elements
+  if (asChild || isButtonChild) {
+    const buttonElement = children as React.ReactElement<{ children?: React.ReactNode }>
+    const buttonProps = buttonElement.props || {}
+    const { children: buttonChildren, ...restButtonProps } = buttonProps
+    const mergedProps = {
+      ...restButtonProps,
+      ...props,
+      'data-slot': 'dropdown-menu-trigger',
+    }
+    
+    return (
+      <MenuPrimitive.Trigger 
+        {...mergedProps}
+      >
+        {buttonChildren}
+      </MenuPrimitive.Trigger>
+    )
+  }
+  
+  // Default: render MenuPrimitive.Trigger which renders its own button
+  return (
+    <MenuPrimitive.Trigger 
+      data-slot="dropdown-menu-trigger"
+      {...props}
+    >
+      {children}
+    </MenuPrimitive.Trigger>
+  )
 }
 
 function DropdownMenuContent({
@@ -61,11 +103,11 @@ function DropdownMenuLabel({
   inset?: boolean
 }) {
   return (
-    <MenuPrimitive.GroupLabel
+    <MenuPrimitive.Item
       data-slot="dropdown-menu-label"
       data-inset={inset}
       className={cn(
-        "px-1.5 py-1 text-xs font-medium text-muted-foreground data-inset:pl-7",
+        "px-1.5 py-1 text-xs font-medium text-muted-foreground data-inset:pl-7 pointer-events-none",
         className
       )}
       {...props}
