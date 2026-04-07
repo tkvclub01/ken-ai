@@ -15,7 +15,7 @@ const roleRouteAccess: Record<string, string[]> = {
   student: ['/', '/student', '/documents', '/knowledge']
 }
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   // SECURITY: Top-level try/catch with fail-closed behavior
   try {
     let supabaseResponse = NextResponse.next({
