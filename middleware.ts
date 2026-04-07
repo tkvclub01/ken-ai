@@ -8,11 +8,11 @@ const publicRoutes = ['/login', '/signup', '/auth/callback', '/403-unauthorized'
 // Role-based route access mapping
 // Note: '/' is allowed for all roles as it auto-redirects based on role
 const roleRouteAccess: Record<string, string[]> = {
-  admin: ['/', '/dashboard', '/settings', '/students', '/documents', '/knowledge', '/analytics', '/chat'],
-  manager: ['/', '/dashboard', '/students', '/documents', '/knowledge', '/analytics', '/chat'],
-  counselor: ['/', '/dashboard', '/students', '/documents', '/knowledge', '/analytics', '/chat'],
-  processor: ['/', '/dashboard', '/documents', '/knowledge', '/chat'],
-  student: ['/', '/dashboard', '/documents', '/knowledge']
+  admin: ['/', '/admin', '/settings', '/students', '/documents', '/knowledge', '/analytics', '/chat'],
+  manager: ['/', '/employee', '/students', '/documents', '/knowledge', '/analytics', '/chat'],
+  counselor: ['/', '/employee', '/students', '/documents', '/knowledge', '/analytics', '/chat'],
+  processor: ['/', '/employee', '/documents', '/knowledge', '/chat'],
+  student: ['/', '/student', '/documents', '/knowledge']
 }
 
 export async function middleware(request: NextRequest) {

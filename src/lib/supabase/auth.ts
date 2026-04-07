@@ -43,12 +43,12 @@ export async function signIn(formData: FormData) {
         // Role-based redirect
         let redirectPath = '/'
         if (role === 'admin') {
-          redirectPath = '/dashboard/admin'
+          redirectPath = '/admin'
         } else if (['manager', 'counselor', 'processor'].includes(role)) {
-          redirectPath = '/dashboard/employee'
+          redirectPath = '/employee'
         } else {
           // student or unknown role
-          redirectPath = '/dashboard/student'
+          redirectPath = '/student'
         }
 
         revalidatePath('/', 'layout')
@@ -134,7 +134,7 @@ export async function sendMagicLink(email: string) {
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
     },
   })
 
@@ -152,7 +152,7 @@ export async function signInWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
+      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
       queryParams: {
         access_type: 'offline',
         prompt: 'consent',
@@ -197,7 +197,7 @@ export async function inviteUser(formData: FormData) {
       full_name: fullName,
       role: role,
     },
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
+    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
   })
 
   if (error) {
