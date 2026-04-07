@@ -1238,8 +1238,8 @@ export default function Home() {
                     </div>
                     <div>
                       <div className="font-medium mb-1">Email</div>
-                      <a href="mailto:support@kenai.vn" className="text-blue-100 hover:text-white transition-colors">
-                        support@kenai.vn
+                      <a href="mailto:support@kenai.id.vn" className="text-blue-100 hover:text-white transition-colors">
+                        support@kenai.id.vn
                       </a>
                     </div>
                   </div>
@@ -1249,8 +1249,8 @@ export default function Home() {
                     </div>
                     <div>
                       <div className="font-medium mb-1">Điện thoại</div>
-                      <a href="tel:+84123456789" className="text-blue-100 hover:text-white transition-colors">
-                        +84 123 456 789
+                      <a href="tel:+84941419617" className="text-blue-100 hover:text-white transition-colors">
+                        0941419617
                       </a>
                     </div>
                   </div>
@@ -1261,9 +1261,9 @@ export default function Home() {
                     <div>
                       <div className="font-medium mb-1">Địa chỉ</div>
                       <p className="text-blue-100">
-                        Tầng 12, Tòa nhà Tech Hub<br />
-                        123 Đường Nguyễn Huệ, Quận 1<br />
-                        TP. Hồ Chí Minh, Việt Nam
+                        Phường Hoà Bình<br />
+                        Thành Phố Hải Phòng<br />
+                        Việt Nam
                       </p>
                     </div>
                   </div>
