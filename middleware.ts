@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
 // Public routes that don't require authentication
-const publicRoutes = ['/login', '/signup', '/auth/callback', '/403-unauthorized', '/404']
+const publicRoutes = ['/', '/login', '/signup', '/auth/callback', '/403-unauthorized', '/404', '/terms', '/privacy']
 
 // Role-based route access mapping
 // Note: '/' is allowed for all roles as it auto-redirects based on role
