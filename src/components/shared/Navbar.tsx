@@ -42,9 +42,8 @@ interface Notification {
 
 export function Navbar() {
   const router = useRouter()
-  const { signOut } = useAuth()
+  const { signOut, user } = useAuth()
   const { theme, setTheme, toggleTheme } = useThemeStore()
-  const { user } = useUserStore()
   const [searchOpen, setSearchOpen] = useState(false)
   
   // Load notifications from localStorage on mount

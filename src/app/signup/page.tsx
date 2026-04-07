@@ -40,25 +40,25 @@ function SignUpForm() {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold font-outfit">KEN AI</h1>
-          <p className="mt-2 text-muted-foreground">Join our intelligent student management platform</p>
+          <p className="mt-2 text-muted-foreground">Dùng thử miễn phí - Quản lý 2 hồ sơ học sinh</p>
         </div>
         
         <Card className="shadow-xl border-t-4 border-primary">
           <CardHeader>
-            <CardTitle className="text-2xl">Create Account</CardTitle>
-            <CardDescription>Enter your details to get started</CardDescription>
+            <CardTitle className="text-2xl">Tạo tài khoản miễn phí</CardTitle>
+            <CardDescription>Bắt đầu dùng thử ngay - Không cần thẻ tín dụng</CardDescription>
           </CardHeader>
           <CardContent>
             <form className="space-y-4" onSubmit={handleSignUp}>
               <div className="space-y-2">
-                <label htmlFor="fullName" className="text-sm font-medium">Full Name</label>
+                <label htmlFor="fullName" className="text-sm font-medium">Họ và tên</label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input 
                     id="fullName" 
                     name="fullName" 
                     type="text" 
-                    placeholder="John Doe" 
+                    placeholder="Nguyễn Văn A" 
                     required 
                     className="pl-10 focus:ring-2 focus:ring-primary/20 transition-all" 
                   />
@@ -66,14 +66,14 @@ function SignUpForm() {
               </div>
               
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">Email Address</label>
+                <label htmlFor="email" className="text-sm font-medium">Email công ty</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input 
                     id="email" 
                     name="email" 
                     type="email" 
-                    placeholder="you@example.com" 
+                    placeholder="ban@congty.com" 
                     required 
                     className="pl-10 focus:ring-2 focus:ring-primary/20 transition-all" 
                   />
@@ -81,7 +81,7 @@ function SignUpForm() {
               </div>
               
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium">Password</label>
+                <label htmlFor="password" className="text-sm font-medium">Mật khẩu</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input 
@@ -96,7 +96,7 @@ function SignUpForm() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="text-sm font-medium">Confirm Password</label>
+                <label htmlFor="confirmPassword" className="text-sm font-medium">Xác nhận mật khẩu</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input 
@@ -114,10 +114,17 @@ function SignUpForm() {
                 {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating account...
+                    Đang tạo tài khoản...
                   </>
-                ) : "Sign Up"}
+                ) : "Đăng ký miễn phí"}
               </Button>
+              
+              {/* Free Trial Info */}
+              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                  <strong>✨ Gói Starter miễn phí:</strong> Quản lý tối đa 2 hồ sơ học sinh, không giới hạn thời gian sử dụng.
+                </p>
+              </div>
             </form>
             
             {displayError && (
@@ -128,22 +135,22 @@ function SignUpForm() {
             
             <div className="mt-6 text-center space-y-4">
               <div className="text-sm">
-                <span className="text-muted-foreground">Already have an account? </span>
+                <span className="text-muted-foreground">Đã có tài khoản? </span>
                 <Link href="/login" className="font-semibold text-primary hover:underline">
-                  Sign In
+                  Đăng nhập
                 </Link>
               </div>
               
               <Link href="/login" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors group">
                 <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                Back to Login
+                Quay lại đăng nhập
               </Link>
             </div>
           </CardContent>
         </Card>
         
         <p className="text-center text-xs text-muted-foreground px-8">
-          By signing up, you agree to our Terms of Service and Privacy Policy.
+          Bằng cách đăng ký, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo mật của chúng tôi.
         </p>
       </div>
     </div>

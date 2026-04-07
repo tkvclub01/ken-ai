@@ -1,106 +1,101 @@
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
 
-// Protected routes that require authentication
-const protectedRoutes = [
-  '/dashboard',
-  '/students',
-  '/documents',
-  '/knowledge',
-  '/analytics',
-  '/chat',
-  '/settings'
-]
-
-// Public routes (login, signup, etc.)
-const publicRoutes = ['/login', '/signup']
+// Public routes that don't require authentication
+const publicRoutes = ['/login', '/signup', '/auth/callback', '/403-unauthorized', '/404']
 
 // Role-based route access mapping
+// Note: '/' is allowed for all roles as it auto-redirects based on role
 const roleRouteAccess: Record<string, string[]> = {
-  admin: ['/', '/students', '/documents', '/knowledge', '/analytics', '/chat', '/settings'],
-  manager: ['/', '/students', '/documents', '/knowledge', '/analytics', '/chat', '/settings'],
-  counselor: ['/', '/students', '/documents', '/knowledge', '/analytics', '/chat'],
-  processor: ['/', '/students', '/documents', '/knowledge', '/chat']
+  admin: ['/', '/admin', '/settings', '/students', '/documents', '/knowledge', '/analytics', '/chat'],
+  manager: ['/', '/employee', '/students', '/documents', '/knowledge', '/analytics', '/chat'],
+  counselor: ['/', '/employee', '/students', '/documents', '/knowledge', '/analytics', '/chat'],
+  processor: ['/', '/employee', '/documents', '/knowledge', '/chat'],
+  student: ['/', '/student', '/documents', '/knowledge']
 }
 
-export default async function proxy(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  })
+export async function proxy(request: NextRequest) {
+  // SECURITY: Top-level try/catch with fail-closed behavior
+  try {
+    let supabaseResponse = NextResponse.next({
+      request,
+    })
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll(cookiesToSet) {
+            // FIX: Set all cookies on the response ONCE, not in nested loops
+            cookiesToSet.forEach(({ name, value, options }) => {
+              request.cookies.set(name, value)
+              supabaseResponse.cookies.set(name, value, options)
+            })
+          },
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
-          })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
-        },
-      },
+      }
+    )
+
+    // Refresh session and get user
+    const { data: { user } } = await supabase.auth.getUser()
+    const { pathname } = request.nextUrl
+
+    // Check if route is public
+    const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+
+    // Redirect to login if accessing protected route without authentication
+    if (!user && !isPublicRoute) {
+      const url = new URL('/login', request.url)
+      url.searchParams.set('redirectedFrom', pathname)
+      return NextResponse.redirect(url)
     }
-  )
 
-  // Refreshing the auth token and get user
-  const { data: { user } } = await supabase.auth.getUser()
+    // If user is authenticated and trying to access auth pages, redirect to dashboard
+    if (user && isPublicRoute) {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
 
-  const { pathname } = request.nextUrl
-
-  // Check if route is public
-  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
-
-  // Check if route requires authentication
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
-
-  // Redirect to login if accessing protected route without authentication
-  if (isProtectedRoute && !user) {
-    const url = new URL('/login', request.url)
-    url.searchParams.set('redirectedFrom', pathname)
-    return NextResponse.redirect(url)
-  }
-
-  // If user is authenticated and trying to access login/signup, redirect to dashboard
-  if (isPublicRoute && user) {
-    return NextResponse.redirect(new URL('/', request.url))
-  }
-
-  // Role-based access control for specific routes
-  if (user && isProtectedRoute) {
-    try {
+    // Role-based access control for protected routes
+    if (user && !isPublicRoute) {
       // Get user profile to check role
-      const { data: profile } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
         .single()
 
-      if (profile) {
-        const userRole = profile.role as string
-        const allowedRoutes = roleRouteAccess[userRole] || []
-        
-        // Check if user's role has access to this route
-        const hasAccess = allowedRoutes.some(route => pathname.startsWith(route))
-        
-        if (!hasAccess) {
-          // Redirect to unauthorized page
-          return NextResponse.redirect(new URL('/403-unauthorized', request.url))
-        }
+      if (error || !profile) {
+        // FAIL CLOSED: If we can't verify role, deny access
+        console.error('Middleware: Failed to fetch user profile:', error)
+        return NextResponse.redirect(new URL('/403-unauthorized', request.url))
       }
-    } catch (error) {
-      console.error('Error checking user role:', error)
-      // Continue with default behavior if role check fails
-    }
-  }
 
-  return supabaseResponse
+      const userRole = profile.role as string
+      
+      // Store role in response header for client-side use
+      supabaseResponse.headers.set('x-user-role', userRole)
+      
+      // Check if user's role has access to this route
+      const allowedRoutes = roleRouteAccess[userRole] || []
+      const hasAccess = allowedRoutes.some(route => pathname.startsWith(route))
+      
+      if (!hasAccess) {
+        // Redirect to unauthorized page
+        return NextResponse.redirect(new URL('/403-unauthorized', request.url))
+      }
+    }
+
+    return supabaseResponse
+  } catch (error) {
+    // SECURITY: Fail closed - on ANY error, deny access
+    console.error('Middleware: Critical error - denying access:', error)
+    return NextResponse.redirect(new URL('/403-unauthorized', request.url))
+  }
 }
 
 export const config = {
@@ -110,7 +105,6 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],

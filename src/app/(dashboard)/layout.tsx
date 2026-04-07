@@ -4,13 +4,16 @@ import { Sidebar } from '@/components/shared/Sidebar'
 import { Navbar } from '@/components/shared/Navbar'
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
-import { cn } from '@/lib/utils'
+import { useAllRealtimeSubscriptions } from '@/hooks/useRealtimeSubscriptions'
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // Enable realtime subscriptions for live dashboard updates
+  useAllRealtimeSubscriptions()
+
   return (
     <ProtectedRoute>
       <div className="flex h-screen overflow-hidden bg-background">

@@ -48,6 +48,8 @@ import {
   Download,
   Filter,
 } from 'lucide-react'
+import { AdvancedFilterPanel } from '@/components/students/AdvancedFilterPanel'
+import { BulkActionsToolbar } from '@/components/students/BulkActionsToolbar'
 
 type SortField = 'full_name' | 'email' | 'created_at' | 'current_stage'
 type SortOrder = 'asc' | 'desc'
@@ -187,10 +189,7 @@ export function StudentTable() {
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
-          <Button variant="outline" size="sm">
-            <Filter className="h-4 w-4 mr-2" />
-            More Filters
-          </Button>
+          <AdvancedFilterPanel onApplyFilters={(filters) => console.log('Filters applied:', filters)} />
         </div>
       </div>
 
@@ -357,6 +356,12 @@ export function StudentTable() {
           </Button>
         </div>
       </div>
+
+      {/* Bulk Actions Toolbar */}
+      <BulkActionsToolbar
+        selectedStudentIds={Array.from(selectedStudents)}
+        onClearSelection={() => setSelectedStudents(new Set())}
+      />
 
       {/* Delete Student Confirmation */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
