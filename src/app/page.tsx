@@ -1260,11 +1260,16 @@ export default function Home() {
                     </div>
                     <div>
                       <div className="font-medium mb-1">Địa chỉ</div>
-                      <p className="text-blue-100">
+                      <a 
+                        href="https://www.google.com/maps/search/?api=1&query=Phường+Hoà+Bình+Thành+Phố+Hải+Phòng+Việt+Nam" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-100 hover:text-white transition-colors inline-block"
+                      >
                         Phường Hoà Bình<br />
                         Thành Phố Hải Phòng<br />
                         Việt Nam
-                      </p>
+                      </a>
                     </div>
                   </div>
                 </div>
