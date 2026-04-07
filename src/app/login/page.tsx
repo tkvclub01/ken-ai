@@ -220,6 +220,17 @@ function LoginForm() {
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
+              
+              <div className="text-center text-xs text-gray-500 dark:text-gray-400 pt-4">
+                Bằng cách đăng nhập, bạn đồng ý với{' '}
+                <Link href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                  Điều khoản dịch vụ
+                </Link>
+                {' '}và{' '}
+                <Link href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                  Chính sách bảo mật
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>

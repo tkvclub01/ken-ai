@@ -1451,6 +1451,15 @@ export default function Home() {
               <p className="text-sm mt-2">
                 KEN-AI
               </p>
+              <div className="mt-4 space-x-4 text-sm">
+                <Link href="/terms" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                  Điều khoản dịch vụ
+                </Link>
+                <span>•</span>
+                <Link href="/privacy" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                  Chính sách bảo mật
+                </Link>
+              </div>
             </div>
           </div>
         </div>

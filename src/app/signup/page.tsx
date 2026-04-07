@@ -183,7 +183,15 @@ function SignUpForm() {
         </div>
         
         <p className="text-center text-xs text-gray-500 dark:text-gray-400 px-8">
-          Bằng cách đăng ký, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo mật của chúng tôi.
+          Bằng cách đăng ký, bạn đồng ý với{' '}
+          <Link href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+            Điều khoản dịch vụ
+          </Link>
+          {' '}và{' '}
+          <Link href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+            Chính sách bảo mật
+          </Link>
+          {' '}của chúng tôi.
         </p>
       </div>
     </div>
