@@ -775,48 +775,48 @@ export default function Home() {
           </div>
 
           <div className="max-w-6xl mx-auto">
-            <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-3xl p-8 shadow-2xl border border-gray-300 dark:border-gray-700 overflow-hidden">
+            <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-3xl p-4 md:p-8 shadow-2xl border border-gray-300 dark:border-gray-700 overflow-hidden">
               {/* Background decoration */}
-              <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
+              <div className="absolute top-0 right-0 w-48 h-48 md:w-96 md:h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-48 h-48 md:w-96 md:h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
               
               {/* Dashboard Mockup */}
-              <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+              <div className="relative bg-white dark:bg-gray-800 rounded-xl md:rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
                 {/* Window Header */}
-                <div className="bg-gray-50 dark:bg-gray-900 px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                <div className="bg-gray-50 dark:bg-gray-900 px-3 md:px-4 py-2 md:py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 md:gap-2">
+                    <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-red-500"></div>
+                    <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-yellow-500"></div>
+                    <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-green-500"></div>
                   </div>
-                  <div className="text-sm font-medium text-gray-600 dark:text-gray-400">KEN-AI Dashboard</div>
-                  <div className="w-16"></div>
+                  <div className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400">KEN-AI Dashboard</div>
+                  <div className="w-12 md:w-16"></div>
                 </div>
 
                 {/* Dashboard Content */}
-                <div className="p-6 space-y-6">
-                  {/* Top Stats Row */}
-                  <div className="grid grid-cols-4 gap-4">
+                <div className="p-3 md:p-6 space-y-3 md:space-y-6">
+                  {/* Top Stats Row - Mobile: 2 cols, Desktop: 4 cols */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
                     {[
                       { label: 'Tổng hồ sơ', value: '1,247', change: '+12%', color: 'blue' },
                       { label: 'Đang xử lý', value: '127', change: '+8%', color: 'purple' },
                       { label: 'Hoàn thành', value: '892', change: '+15%', color: 'green' },
                       { label: 'Tỷ lệ thành công', value: '94%', change: '+3%', color: 'orange' }
                     ].map((stat, idx) => (
-                      <div key={idx} className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">{stat.label}</div>
-                        <div className={`text-2xl font-bold text-${stat.color}-600 dark:text-${stat.color}-400`}>{stat.value}</div>
-                        <div className="text-xs text-green-600 dark:text-green-400 mt-1">↑ {stat.change}</div>
+                      <div key={idx} className="bg-gray-50 dark:bg-gray-900 rounded-lg md:rounded-xl p-2 md:p-4 border border-gray-200 dark:border-gray-700">
+                        <div className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400 mb-1">{stat.label}</div>
+                        <div className={`text-lg md:text-2xl font-bold text-${stat.color}-600 dark:text-${stat.color}-400`}>{stat.value}</div>
+                        <div className="text-[10px] md:text-xs text-green-600 dark:text-green-400 mt-1">↑ {stat.change}</div>
                       </div>
                     ))}
                   </div>
 
-                  {/* Pipeline & Chart Row */}
-                  <div className="grid grid-cols-2 gap-6">
+                  {/* Pipeline & Chart Row - Mobile: stack, Desktop: side-by-side */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
                     {/* Pipeline */}
-                    <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-                      <div className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Pipeline học sinh</div>
-                      <div className="space-y-3">
+                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg md:rounded-xl p-3 md:p-5 border border-gray-200 dark:border-gray-700">
+                      <div className="text-xs md:text-sm font-semibold text-gray-900 dark:text-white mb-2 md:mb-4">Pipeline học sinh</div>
+                      <div className="space-y-2 md:space-y-3">
                         {[
                           { stage: 'Lead', count: 45, width: '100%', color: 'bg-blue-500' },
                           { stage: 'Liên hệ', count: 32, width: '71%', color: 'bg-purple-500' },
@@ -825,12 +825,12 @@ export default function Home() {
                           { stage: 'Ghi danh', count: 7, width: '16%', color: 'bg-green-500' }
                         ].map((item, idx) => (
                           <div key={idx}>
-                            <div className="flex justify-between text-xs mb-1">
+                            <div className="flex justify-between text-[10px] md:text-xs mb-1">
                               <span className="text-gray-600 dark:text-gray-400">{item.stage}</span>
                               <span className="font-semibold text-gray-900 dark:text-white">{item.count}</span>
                             </div>
-                            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                              <div className={`${item.color} h-2 rounded-full transition-all`} style={{ width: item.width }}></div>
+                            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 md:h-2">
+                              <div className={`${item.color} h-1.5 md:h-2 rounded-full transition-all`} style={{ width: item.width }}></div>
                             </div>
                           </div>
                         ))}
@@ -838,20 +838,20 @@ export default function Home() {
                     </div>
 
                     {/* Recent Activity */}
-                    <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-                      <div className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Hoạt động gần đây</div>
-                      <div className="space-y-3">
+                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg md:rounded-xl p-3 md:p-5 border border-gray-200 dark:border-gray-700">
+                      <div className="text-xs md:text-sm font-semibold text-gray-900 dark:text-white mb-2 md:mb-4">Hoạt động gần đây</div>
+                      <div className="space-y-2 md:space-y-3">
                         {[
                           { action: 'Hồ sơ mới được tạo', time: '2 phút trước', icon: '📄' },
                           { action: 'Visa đã được phê duyệt', time: '15 phút trước', icon: '✅' },
                           { action: 'AI trả lời câu hỏi', time: '1 giờ trước', icon: '🤖' },
                           { action: 'Tài liệu OCR hoàn tất', time: '2 giờ trước', icon: '📝' }
                         ].map((activity, idx) => (
-                          <div key={idx} className="flex items-start gap-3">
-                            <div className="text-lg">{activity.icon}</div>
-                            <div className="flex-1">
-                              <div className="text-sm text-gray-900 dark:text-white">{activity.action}</div>
-                              <div className="text-xs text-gray-500 dark:text-gray-400">{activity.time}</div>
+                          <div key={idx} className="flex items-start gap-2 md:gap-3">
+                            <div className="text-base md:text-lg">{activity.icon}</div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-xs md:text-sm text-gray-900 dark:text-white truncate">{activity.action}</div>
+                              <div className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400">{activity.time}</div>
                             </div>
                           </div>
                         ))}
