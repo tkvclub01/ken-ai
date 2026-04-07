@@ -39,37 +39,64 @@ export function useStudentRealtimeUpdates() {
   const supabase = createClient()
 
   useEffect(() => {
-    console.log('🔄 Setting up student realtime subscription...')
+    let isMounted = true
 
-    const channel = supabase
-      .channel('students-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*', // Listen to INSERT, UPDATE, DELETE
-          schema: 'public',
-          table: 'students',
-        },
-        (payload) => {
-          console.log('📊 Student change detected:', payload.eventType, payload.new)
-          
-          // Invalidate student-related queries
-          queryClient.invalidateQueries({ queryKey: ['students'] })
-          queryClient.invalidateQueries({ queryKey: ['student'] })
-          queryClient.invalidateQueries({ queryKey: ['pipeline'] })
+    const setupSubscription = async () => {
+      try {
+        console.log('🔄 Setting up student realtime subscription...')
+
+        // Check if user is authenticated before subscribing
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
+
+        if (!session) {
+          console.log('⚠️ No active session, skipping student realtime subscription')
+          return
         }
-      )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          console.log('✅ Student realtime subscription active')
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error('❌ Student realtime subscription error')
+
+        const channel = supabase
+          .channel('students-changes')
+          .on(
+            'postgres_changes',
+            {
+              event: '*', // Listen to INSERT, UPDATE, DELETE
+              schema: 'public',
+              table: 'students',
+            },
+            (payload) => {
+              console.log('📊 Student change detected:', payload.eventType, payload.new)
+              
+              // Invalidate student-related queries
+              queryClient.invalidateQueries({ queryKey: ['students'] })
+              queryClient.invalidateQueries({ queryKey: ['student'] })
+              queryClient.invalidateQueries({ queryKey: ['pipeline'] })
+            }
+          )
+          .subscribe((status) => {
+            if (!isMounted) return
+            
+            if (status === 'SUBSCRIBED') {
+              console.log('✅ Student realtime subscription active')
+            } else if (status === 'CHANNEL_ERROR') {
+              console.warn('⚠️ Student realtime subscription error - this is normal in development or without proper RLS policies')
+            }
+          })
+
+        return () => {
+          console.log('🛑 Cleaning up student realtime subscription')
+          supabase.removeChannel(channel)
         }
-      })
+      } catch (error) {
+        console.error('❌ Error setting up student realtime subscription:', error)
+      }
+    }
+
+    const cleanup = setupSubscription()
 
     return () => {
-      console.log('🛑 Cleaning up student realtime subscription')
-      supabase.removeChannel(channel)
+      isMounted = false
+      cleanup.then((cleanupFn) => cleanupFn?.())
     }
   }, [queryClient, supabase])
 }
@@ -82,36 +109,62 @@ export function useDocumentRealtimeUpdates() {
   const supabase = createClient()
 
   useEffect(() => {
-    console.log('🔄 Setting up document realtime subscription...')
+    let isMounted = true
 
-    const channel = supabase
-      .channel('documents-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'documents',
-        },
-        (payload) => {
-          console.log('📄 Document change detected:', payload.eventType)
-          
-          // Invalidate document-related queries
-          queryClient.invalidateQueries({ queryKey: ['documents'] })
-          queryClient.invalidateQueries({ queryKey: ['document'] })
+    const setupSubscription = async () => {
+      try {
+        console.log('🔄 Setting up document realtime subscription...')
+
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
+
+        if (!session) {
+          console.log('⚠️ No active session, skipping document realtime subscription')
+          return
         }
-      )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          console.log('✅ Document realtime subscription active')
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error('❌ Document realtime subscription error')
+
+        const channel = supabase
+          .channel('documents-changes')
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'documents',
+            },
+            (payload) => {
+              console.log('📄 Document change detected:', payload.eventType)
+              
+              // Invalidate document-related queries
+              queryClient.invalidateQueries({ queryKey: ['documents'] })
+              queryClient.invalidateQueries({ queryKey: ['document'] })
+            }
+          )
+          .subscribe((status) => {
+            if (!isMounted) return
+            
+            if (status === 'SUBSCRIBED') {
+              console.log('✅ Document realtime subscription active')
+            } else if (status === 'CHANNEL_ERROR') {
+              console.warn('⚠️ Document realtime subscription error - this is normal in development or without proper RLS policies')
+            }
+          })
+
+        return () => {
+          console.log('🛑 Cleaning up document realtime subscription')
+          supabase.removeChannel(channel)
         }
-      })
+      } catch (error) {
+        console.error('❌ Error setting up document realtime subscription:', error)
+      }
+    }
+
+    const cleanup = setupSubscription()
 
     return () => {
-      console.log('🛑 Cleaning up document realtime subscription')
-      supabase.removeChannel(channel)
+      isMounted = false
+      cleanup.then((cleanupFn) => cleanupFn?.())
     }
   }, [queryClient, supabase])
 }
@@ -124,37 +177,63 @@ export function useKnowledgeBaseRealtimeUpdates() {
   const supabase = createClient()
 
   useEffect(() => {
-    console.log('🔄 Setting up knowledge base realtime subscription...')
+    let isMounted = true
 
-    const channel = supabase
-      .channel('knowledge-articles-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'knowledge_articles',
-        },
-        (payload) => {
-          console.log('📚 Knowledge article change detected:', payload.eventType)
-          
-          // Invalidate knowledge base queries
-          queryClient.invalidateQueries({ queryKey: ['knowledge-articles'] })
-          queryClient.invalidateQueries({ queryKey: ['article-usage'] })
-          queryClient.invalidateQueries({ queryKey: ['content-gaps'] })
+    const setupSubscription = async () => {
+      try {
+        console.log('🔄 Setting up knowledge base realtime subscription...')
+
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
+
+        if (!session) {
+          console.log('⚠️ No active session, skipping knowledge base realtime subscription')
+          return
         }
-      )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          console.log('✅ Knowledge base realtime subscription active')
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error('❌ Knowledge base realtime subscription error')
+
+        const channel = supabase
+          .channel('knowledge-articles-changes')
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'knowledge_articles',
+            },
+            (payload) => {
+              console.log('📚 Knowledge article change detected:', payload.eventType)
+              
+              // Invalidate knowledge base queries
+              queryClient.invalidateQueries({ queryKey: ['knowledge-articles'] })
+              queryClient.invalidateQueries({ queryKey: ['article-usage'] })
+              queryClient.invalidateQueries({ queryKey: ['content-gaps'] })
+            }
+          )
+          .subscribe((status) => {
+            if (!isMounted) return
+            
+            if (status === 'SUBSCRIBED') {
+              console.log('✅ Knowledge base realtime subscription active')
+            } else if (status === 'CHANNEL_ERROR') {
+              console.warn('⚠️ Knowledge base realtime subscription error - this is normal in development or without proper RLS policies')
+            }
+          })
+
+        return () => {
+          console.log('🛑 Cleaning up knowledge base realtime subscription')
+          supabase.removeChannel(channel)
         }
-      })
+      } catch (error) {
+        console.error('❌ Error setting up knowledge base realtime subscription:', error)
+      }
+    }
+
+    const cleanup = setupSubscription()
 
     return () => {
-      console.log('🛑 Cleaning up knowledge base realtime subscription')
-      supabase.removeChannel(channel)
+      isMounted = false
+      cleanup.then((cleanupFn) => cleanupFn?.())
     }
   }, [queryClient, supabase])
 }

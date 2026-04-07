@@ -11,14 +11,19 @@ export async function signIn(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
+  console.log('[Auth] Attempting sign in for:', email)
+
   const { error, data } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
 
   if (error) {
+    console.error('[Auth] Sign in failed:', error.message)
     redirect(`/login?error=${encodeURIComponent(error.message)}`)
   }
+
+  console.log('[Auth] Sign in successful, fetching user profile...')
 
   // Get user role and update last login
   if (data.user) {
@@ -54,7 +59,11 @@ export async function signIn(formData: FormData) {
         revalidatePath('/', 'layout')
         redirect(redirectPath)
       }
-    } catch (err) {
+    } catch (err: any) {
+      // Re-throw Next.js redirect errors to allow proper redirection
+      if (err.message && err.message.includes('NEXT_REDIRECT')) {
+        throw err
+      }
       console.error('Unexpected error during login role check:', err)
       // Fallback to default redirect
     }

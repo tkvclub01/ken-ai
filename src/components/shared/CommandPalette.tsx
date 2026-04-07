@@ -2,20 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { DialogProps } from '@radix-ui/react-dialog'
-import { Calculator, Calendar, CreditCard, Settings, Smile, User } from 'lucide-react'
+import { Calculator, Calendar, CreditCard, Settings, User } from 'lucide-react'
 import { NAVIGATION } from '@/lib/constants'
-import { Badge } from '@/components/ui/badge'
 import {
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-  CommandShortcut,
-} from '@/components/ui/command'
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 
 export function CommandPalette({
   open,
@@ -42,60 +37,49 @@ export function CommandPalette({
   const handleSelect = (href: string) => {
     router.push(href)
     onOpenChange(false)
+    setSearch('')
   }
 
+  // Filter navigation items based on search
+  const filteredNav = NAVIGATION.filter(item =>
+    item.title.toLowerCase().includes(search.toLowerCase())
+  )
+
   return (
-    <CommandDialog open={open} onOpenChange={onOpenChange}>
-      <CommandInput
-        placeholder="Type a command or search..."
-        value={search}
-        onValueChange={setSearch}
-      />
-      <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
-        <CommandGroup heading="Quick Navigation">
-          {NAVIGATION.map((item) => (
-            <CommandItem
-              key={item.href}
-              value={item.title}
-              onSelect={() => handleSelect(item.href)}
-            >
-              <span className="flex items-center gap-2">
-                {item.badge && (
-                  <Badge variant="secondary" className="h-5 text-xs">
-                    {item.badge}
-                  </Badge>
-                )}
-                {item.title}
-              </span>
-              {item.group === 'settings' && (
-                <CommandShortcut>
-                  <Settings className="h-3 w-3" />
-                </CommandShortcut>
-              )}
-            </CommandItem>
-          ))}
-        </CommandGroup>
-        <CommandSeparator />
-        <CommandGroup heading="Quick Actions">
-          <CommandItem value="create-student" onSelect={() => handleSelect('/students?action=create')}>
-            <User className="mr-2 h-4 w-4" />
-            <span>Create Student</span>
-          </CommandItem>
-          <CommandItem value="upload-document" onSelect={() => handleSelect('/documents?tab=upload')}>
-            <Calendar className="mr-2 h-4 w-4" />
-            <span>Upload Document</span>
-          </CommandItem>
-          <CommandItem value="view-analytics" onSelect={() => handleSelect('/analytics')}>
-            <CreditCard className="mr-2 h-4 w-4" />
-            <span>View Analytics</span>
-          </CommandItem>
-          <CommandItem value="settings" onSelect={() => handleSelect('/settings')}>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
-          </CommandItem>
-        </CommandGroup>
-      </CommandList>
-    </CommandDialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Command Palette</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <Input
+            placeholder="Type a command or search..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            autoFocus
+          />
+          <div className="space-y-2 max-h-[300px] overflow-y-auto">
+            {filteredNav.length > 0 ? (
+              <div>
+                <h4 className="mb-2 text-sm font-medium text-muted-foreground">Quick Navigation</h4>
+                {filteredNav.map((item) => (
+                  <button
+                    key={item.href}
+                    onClick={() => handleSelect(item.href)}
+                    className="w-full text-left px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors flex items-center gap-2"
+                  >
+                    <span>{item.title}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-sm text-muted-foreground py-4">
+                No results found.
+              </p>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }

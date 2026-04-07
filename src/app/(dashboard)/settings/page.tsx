@@ -240,10 +240,10 @@ export default function SettingsPage() {
 
       <Tabs defaultValue="profile" className="space-y-4">
         <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 lg:w-[700px]">
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="security">Security</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          <TabsTrigger value="preferences">Preferences</TabsTrigger>
+          <TabsTrigger value="profile">Hồ Sơ</TabsTrigger>
+          <TabsTrigger value="security">Bảo Mật</TabsTrigger>
+          <TabsTrigger value="notifications">Thông Báo</TabsTrigger>
+          <TabsTrigger value="preferences">Tùy Chọn</TabsTrigger>
         </TabsList>
 
         {/* Profile Settings */}
@@ -252,10 +252,10 @@ export default function SettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-5 w-5" />
-                Profile Information
+                Thông Tin Hồ Sơ
               </CardTitle>
               <CardDescription>
-                Update your personal information and profile details
+                Cập nhật thông tin cá nhân và chi tiết hồ sơ của bạn
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -279,7 +279,7 @@ export default function SettingsPage() {
                     <p className="text-sm text-muted-foreground">{profileData.email || authUser?.email}</p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm">Change Avatar</Button>
+                <Button variant="outline" size="sm">Thay Đổi Ảnh Đại Diện</Button>
               </div>
 
               <Separator />
@@ -287,18 +287,18 @@ export default function SettingsPage() {
               {/* Form Fields */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
+                  <Label htmlFor="fullName">Họ Và Tên</Label>
                   <Input
                     id="fullName"
                     value={profileData.full_name}
                     onChange={(e) => setProfileData({ ...profileData, full_name: e.target.value })}
-                    placeholder={authLoading ? "Loading..." : "Enter your full name"}
+                    placeholder={authLoading ? "Đang tải..." : "Nhập họ và tên của bạn"}
                     disabled={authLoading}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="email">Địa Chỉ Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -309,18 +309,18 @@ export default function SettingsPage() {
                       disabled
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+                  <p className="text-xs text-muted-foreground">Không thể thay đổi email</p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
+                  <Label htmlFor="phone">Số Điện Thoại</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="phone"
                       value={profileData.phone}
                       onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-                      placeholder={authLoading ? "Loading..." : "+1 (234) 567-8900"}
+                      placeholder={authLoading ? "Đang tải..." : "+84 (123) 456-7890"}
                       className="pl-10"
                       disabled={authLoading}
                     />
@@ -328,25 +328,25 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="department">Department</Label>
+                  <Label htmlFor="department">Phòng Ban</Label>
                   <Input
                     id="department"
                     value={profileData.department}
                     onChange={(e) => setProfileData({ ...profileData, department: e.target.value })}
-                    placeholder={authLoading ? "Loading..." : "e.g., Admissions, IT"}
+                    placeholder={authLoading ? "Đang tải..." : "Ví dụ: Tuyển Sinh, IT"}
                     disabled={authLoading}
                   />
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="location">Location</Label>
+                  <Label htmlFor="location">Vị Trí</Label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="location"
                       value={profileData.location}
                       onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
-                      placeholder={authLoading ? "Loading..." : "City, Country"}
+                      placeholder={authLoading ? "Đang tải..." : "Thành phố, Quốc gia"}
                       className="pl-10"
                       disabled={authLoading}
                     />
@@ -354,12 +354,12 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="bio">Bio</Label>
+                  <Label htmlFor="bio">Giới Thiệu</Label>
                   <Input
                     id="bio"
                     value={profileData.bio}
                     onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
-                    placeholder={authLoading ? "Loading..." : "Tell us about yourself"}
+                    placeholder={authLoading ? "Đang tải..." : "Hãy kể về bản thân bạn"}
                     disabled={authLoading}
                   />
                 </div>
@@ -367,7 +367,7 @@ export default function SettingsPage() {
 
               <Button onClick={handleSaveProfile} disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Changes
+                Lưu Thay Đổi
               </Button>
             </CardContent>
           </Card>
@@ -379,10 +379,10 @@ export default function SettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Lock className="h-5 w-5" />
-                Security Settings
+                Cài Đặt Bảo Mật
               </CardTitle>
               <CardDescription>
-                Manage your password and security preferences
+                Quản lý mật khẩu và tùy chọn bảo mật của bạn
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -390,19 +390,19 @@ export default function SettingsPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
                   <Key className="h-5 w-5 text-muted-foreground" />
-                  <h3 className="font-semibold">Change Password</h3>
+                  <h3 className="font-semibold">Đổi Mật Khẩu</h3>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-1">
                   <div className="space-y-2">
-                    <Label htmlFor="current_password">Current Password</Label>
+                    <Label htmlFor="current_password">Mật Khẩu Hiện Tại</Label>
                     <div className="relative">
                       <Input
                         id="current_password"
                         type={showPassword ? 'text' : 'password'}
                         value={passwordData.current_password}
                         onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })}
-                        placeholder="Enter current password"
+                        placeholder="Nhập mật khẩu hiện tại"
                         className="pr-10"
                       />
                       <Button
@@ -418,34 +418,34 @@ export default function SettingsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="new_password">New Password</Label>
+                    <Label htmlFor="new_password">Mật Khẩu Mới</Label>
                     <Input
                       id="new_password"
                       type={showPassword ? 'text' : 'password'}
                       value={passwordData.new_password}
                       onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
-                      placeholder="Enter new password"
+                      placeholder="Nhập mật khẩu mới"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Must be at least 8 characters long
+                      Phải có ít nhất 8 ký tự
                     </p>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="confirm_password">Confirm New Password</Label>
+                    <Label htmlFor="confirm_password">Xác Nhận Mật Khẩu Mới</Label>
                     <Input
                       id="confirm_password"
                       type={showPassword ? 'text' : 'password'}
                       value={passwordData.confirm_password}
                       onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
-                      placeholder="Confirm new password"
+                      placeholder="Xác nhận mật khẩu mới"
                     />
                   </div>
                 </div>
 
                 <Button onClick={handleChangePassword} disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Update Password
+                  Cập Nhật Mật Khẩu
                 </Button>
               </div>
 
@@ -455,46 +455,46 @@ export default function SettingsPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <Shield className="h-5 w-5 text-muted-foreground" />
-                  <h3 className="font-semibold">Account Management</h3>
+                  <h3 className="font-semibold">Quản Lý Tài Khoản</h3>
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-4 rounded-lg border">
                     <div className="space-y-0.5">
-                      <Label>Data Export</Label>
+                      <Label>Xuất Dữ Liệu</Label>
                       <p className="text-sm text-muted-foreground">
-                        Download all your account data
+                        Tải xuống tất cả dữ liệu tài khoản của bạn
                       </p>
                     </div>
                     <Button variant="outline" onClick={handleExportData} disabled={loading}>
                       <Download className="mr-2 h-4 w-4" />
-                      Export
+                      Xuất
                     </Button>
                   </div>
 
                   <div className="flex items-center justify-between p-4 rounded-lg border border-destructive/50 bg-destructive/5">
                     <div className="space-y-0.5">
-                      <Label className="text-destructive">Delete Account</Label>
+                      <Label className="text-destructive">Xóa Tài Khoản</Label>
                       <p className="text-sm text-muted-foreground">
-                        Permanently delete your account and all data
+                        Xóa vĩnh viễn tài khoản và tất cả dữ liệu
                       </p>
                     </div>
                     <Button variant="destructive" disabled>
                       <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
+                      Xóa
                     </Button>
                   </div>
 
                   <div className="flex items-center justify-between p-4 rounded-lg border">
                     <div className="space-y-0.5">
-                      <Label>Logout</Label>
+                      <Label>Đăng Xuất</Label>
                       <p className="text-sm text-muted-foreground">
-                        Sign out from all devices
+                        Đăng xuất khỏi tất cả thiết bị
                       </p>
                     </div>
                     <Button variant="outline" onClick={handleLogout} disabled={authLoading}>
                       <LogOut className="mr-2 h-4 w-4" />
-                      Logout
+                      Đăng Xuất
                     </Button>
                   </div>
                 </div>
@@ -509,18 +509,18 @@ export default function SettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bell className="h-5 w-5" />
-                Notification Preferences
+                Tùy Chọn Thông Báo
               </CardTitle>
               <CardDescription>
-                Choose how you want to receive notifications
+                Chọn cách bạn muốn nhận thông báo
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Email Notifications</Label>
+                  <Label>Thông Báo Email</Label>
                   <p className="text-sm text-muted-foreground">
-                    Receive updates and notifications via email
+                    Nhận cập nhật và thông báo qua email
                   </p>
                 </div>
                 <Switch
@@ -535,9 +535,9 @@ export default function SettingsPage() {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Push Notifications</Label>
+                  <Label>Thông Báo Đẩy</Label>
                   <p className="text-sm text-muted-foreground">
-                    Get real-time alerts in your browser
+                    Nhận cảnh báo thời gian thực trong trình duyệt của bạn
                   </p>
                 </div>
                 <Switch
@@ -552,9 +552,9 @@ export default function SettingsPage() {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Marketing Emails</Label>
+                  <Label>Email Tiếp Thị</Label>
                   <p className="text-sm text-muted-foreground">
-                    Receive product updates and promotional content
+                    Nhận cập nhật sản phẩm và nội dung khuyến mãi
                   </p>
                 </div>
                 <Switch
@@ -569,9 +569,9 @@ export default function SettingsPage() {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Student Updates</Label>
+                  <Label>Cập Nhật Học Sinh</Label>
                   <p className="text-sm text-muted-foreground">
-                    Notifications about student activities and progress
+                    Thông báo về hoạt động và tiến độ của học sinh
                   </p>
                 </div>
                 <Switch
@@ -586,9 +586,9 @@ export default function SettingsPage() {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Document Reminders</Label>
+                  <Label>Nhắc Nhở Tài Liệu</Label>
                   <p className="text-sm text-muted-foreground">
-                    Reminders for pending document uploads and verifications
+                    Nhắc nhở về tài liệu đang chờ tải lên và xác minh
                   </p>
                 </div>
                 <Switch
@@ -600,7 +600,7 @@ export default function SettingsPage() {
               </div>
 
               <Button onClick={handleSaveNotifications} className="mt-4">
-                Save Preferences
+                Lưu Tùy Chọn
               </Button>
             </CardContent>
           </Card>
@@ -612,16 +612,16 @@ export default function SettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Palette className="h-5 w-5" />
-                Appearance & Preferences
+                Giao Diện & Tùy Chọn
               </CardTitle>
               <CardDescription>
-                Customize the look and feel of your dashboard
+                Tùy chỉnh giao diện của bảng điều khiển
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Theme Selection */}
               <div className="space-y-2">
-                <Label>Theme</Label>
+                <Label>Giao Diện</Label>
                 <div className="grid grid-cols-3 gap-4">
                   <Button
                     variant={theme === 'light' ? 'default' : 'outline'}
@@ -635,7 +635,7 @@ export default function SettingsPage() {
                         <div className="h-2 w-2 rounded bg-muted" />
                       </div>
                     </div>
-                    <span className="text-xs">Light</span>
+                    <span className="text-xs">Sáng</span>
                   </Button>
 
                   <Button
@@ -650,7 +650,7 @@ export default function SettingsPage() {
                         <div className="h-2 w-2 rounded bg-muted-foreground" />
                       </div>
                     </div>
-                    <span className="text-xs">Dark</span>
+                    <span className="text-xs">Tối</span>
                   </Button>
 
                   <Button
@@ -665,7 +665,7 @@ export default function SettingsPage() {
                         <div className="h-2 w-2 rounded bg-muted" />
                       </div>
                     </div>
-                    <span className="text-xs">System</span>
+                    <span className="text-xs">Hệ Thống</span>
                   </Button>
                 </div>
               </div>
@@ -676,14 +676,14 @@ export default function SettingsPage() {
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <Globe className="h-4 w-4" />
-                  Language
+                  Ngôn Ngữ
                 </Label>
                 <div className="grid grid-cols-2 gap-4">
-                  <Button variant="default" className="h-16">
-                    English
-                  </Button>
                   <Button variant="outline" className="h-16 opacity-50" disabled>
-                    Tiếng Việt (Coming Soon)
+                    English (Coming Soon)
+                  </Button>
+                  <Button variant="default" className="h-16">
+                    Tiếng Việt
                   </Button>
                 </div>
               </div>
@@ -694,15 +694,15 @@ export default function SettingsPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <Eye className="h-5 w-5 text-muted-foreground" />
-                  <h3 className="font-semibold">Accessibility</h3>
+                  <h3 className="font-semibold">Trợ Năng</h3>
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>High Contrast Mode</Label>
+                      <Label>Chế Độ Tương Phản Cao</Label>
                       <p className="text-sm text-muted-foreground">
-                        Increase contrast for better visibility
+                        Tăng độ tương phản để dễ nhìn hơn
                       </p>
                     </div>
                     <Switch />
@@ -710,9 +710,9 @@ export default function SettingsPage() {
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Reduce Motion</Label>
+                      <Label>Giảm Hiệu Ứng Chuyển Động</Label>
                       <p className="text-sm text-muted-foreground">
-                        Minimize animations and transitions
+                        Giảm thiểu hoạt ảnh và chuyển tiếp
                       </p>
                     </div>
                     <Switch />

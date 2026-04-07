@@ -88,7 +88,7 @@ export function Sidebar() {
             <div key={group}>
               {!collapsed && (
                 <h4 className="mb-2 px-2 text-xs font-semibold uppercase text-muted-foreground">
-                  {group.replace('-', ' ')}
+                  {group === 'management' ? 'Quản Lý' : group === 'ai-tools' ? 'Công Cụ AI' : group === 'settings' ? 'Cài Đặt' : group.replace('-', ' ')}
                 </h4>
               )}
               <div className="space-y-1">
@@ -132,7 +132,7 @@ export function Sidebar() {
       {!collapsed && (
         <div className="border-t p-4 text-xs text-muted-foreground">
           <p>KEN AI v1.0.0</p>
-          <p className="mt-1">© 2025 All rights reserved</p>
+          <p className="mt-1">© 2025 Bản quyền thuộc về</p>
         </div>
       )}
     </div>

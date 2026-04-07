@@ -9,66 +9,66 @@ export default function StudentDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Student Portal</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Cổng Thông Tin Hồ Sơ</h1>
           <p className="text-muted-foreground mt-1">
-            Track your study abroad journey
+            Theo dõi hành trình du học của bạn
           </p>
         </div>
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center rounded-md bg-green-500/10 px-3 py-1 text-sm font-medium text-green-600 dark:text-green-400">
             <GraduationCap className="mr-1 h-4 w-4" />
-            Student
+            Hồ Sơ Học Sinh
           </span>
         </div>
       </div>
 
-      {/* Student Stats Cards - Personal Progress */}
+      {/* Profile Stats Cards - Personal Progress */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Application Status</CardTitle>
+            <CardTitle className="text-sm font-medium">Trạng Thái Hồ Sơ</CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">In Progress</div>
+            <div className="text-2xl font-bold">Đang Xử Lý</div>
             <p className="text-xs text-muted-foreground mt-1">
-              School submission stage
+              Giai đoạn nộp hồ sơ trường
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Documents</CardTitle>
+            <CardTitle className="text-sm font-medium">Tài Liệu</CardTitle>
             <FileCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">8/12</div>
             <p className="text-xs text-muted-foreground mt-1">
-              4 documents pending
+              4 tài liệu đang chờ
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Next Deadline</CardTitle>
+            <CardTitle className="text-sm font-medium">Hạn Chót Tiếp Theo</CardTitle>
             <GraduationCap className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">Dec 15</div>
+            <div className="text-2xl font-bold">15 Tháng 12</div>
             <p className="text-xs text-muted-foreground mt-1">
-              University application
+              Nộp đơn đại học
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Your Counselor</CardTitle>
+            <CardTitle className="text-sm font-medium">Giáo Viên Tư Vấn</CardTitle>
             <MessageCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">Ms. Lan Anh</div>
+            <div className="text-2xl font-bold">Cô Lan Anh</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Available for chat
+              Sẵn sàng trò chuyện
             </p>
           </CardContent>
         </Card>
@@ -81,8 +81,8 @@ export default function StudentDashboard() {
           {/* My Application Pipeline */}
           <Card>
             <CardHeader>
-              <CardTitle>My Application Pipeline</CardTitle>
-              <CardDescription>Track your progress through each stage</CardDescription>
+              <CardTitle>Hồ Sơ Ứng Tuyển Của Tôi</CardTitle>
+              <CardDescription>Theo dõi tiến độ qua từng giai đoạn</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -93,11 +93,11 @@ export default function StudentDashboard() {
                   
                   {/* Stage Items */}
                   {[
-                    { name: 'Consultation', status: 'completed', date: 'Nov 1, 2024', icon: MessageCircle },
-                    { name: 'Document Collection', status: 'completed', date: 'Nov 15, 2024', icon: FileCheck },
-                    { name: 'School Submission', status: 'current', date: 'In Progress', icon: BookOpen },
-                    { name: 'Visa Application', status: 'pending', date: 'Expected: Jan 2025', icon: FileCheck },
-                    { name: 'Pre-departure', status: 'pending', date: 'Expected: Feb 2025', icon: GraduationCap },
+                    { name: 'Tư Vấn', status: 'completed', date: '1 Tháng 11, 2024', icon: MessageCircle },
+                    { name: 'Thu Thập Tài Liệu', status: 'completed', date: '15 Tháng 11, 2024', icon: FileCheck },
+                    { name: 'Nộp Hồ Sơ Trường', status: 'current', date: 'Đang Thực Hiện', icon: BookOpen },
+                    { name: 'Xin Visa', status: 'pending', date: 'Dự Kiến: Tháng 1/2025', icon: FileCheck },
+                    { name: 'Chuẩn Bị Khởi Hành', status: 'pending', date: 'Dự Kiến: Tháng 2/2025', icon: GraduationCap },
                   ].map((stage, index) => (
                     <div key={stage.name} className="relative flex items-start gap-4">
                       {/* Icon */}
@@ -121,10 +121,10 @@ export default function StudentDashboard() {
                         </h4>
                         <p className="text-sm text-muted-foreground">{stage.date}</p>
                         {stage.status === 'current' && (
-                          <p className="text-xs text-primary mt-1">● In Progress</p>
+                          <p className="text-xs text-primary mt-1">● Đang Thực Hiện</p>
                         )}
                         {stage.status === 'completed' && (
-                          <p className="text-xs text-green-600 mt-1">✓ Completed</p>
+                          <p className="text-xs text-green-600 mt-1">✓ Hoàn Thành</p>
                         )}
                       </div>
                     </div>
@@ -137,18 +137,18 @@ export default function StudentDashboard() {
           {/* My Documents */}
           <Card>
             <CardHeader>
-              <CardTitle>My Documents</CardTitle>
-              <CardDescription>Upload and track your documents</CardDescription>
+              <CardTitle>Tài Liệu Của Tôi</CardTitle>
+              <CardDescription>Tải lên và theo dõi tài liệu của bạn</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 {[
-                  { name: 'Passport Copy', status: 'verified', date: 'Uploaded Nov 10' },
-                  { name: 'Academic Transcript', status: 'verified', date: 'Uploaded Nov 12' },
-                  { name: 'English Certificate', status: 'pending', date: 'Uploaded Nov 20' },
-                  { name: 'Recommendation Letter 1', status: 'required', date: 'Not uploaded' },
-                  { name: 'Recommendation Letter 2', status: 'required', date: 'Not uploaded' },
-                  { name: 'Statement of Purpose', status: 'required', date: 'Not uploaded' },
+                  { name: 'Bản Sao Hộ Chiếu', status: 'verified', date: 'Đã tải lên 10 Tháng 11' },
+                  { name: 'Bảng Điểm Học Tập', status: 'verified', date: 'Đã tải lên 12 Tháng 11' },
+                  { name: 'Chứng Chỉ Tiếng Anh', status: 'pending', date: 'Đã tải lên 20 Tháng 11' },
+                  { name: 'Thư Giới Thiệu 1', status: 'required', date: 'Chưa tải lên' },
+                  { name: 'Thư Giới Thiệu 2', status: 'required', date: 'Chưa tải lên' },
+                  { name: 'Bài Luận Cá Nhân', status: 'required', date: 'Chưa tải lên' },
                 ].map((doc) => (
                   <div key={doc.name} className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent/50 transition-colors">
                     <div className="flex items-center gap-3">
@@ -171,13 +171,13 @@ export default function StudentDashboard() {
                         ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
                         : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                     }`}>
-                      {doc.status === 'verified' ? '✓ Verified' : doc.status === 'pending' ? '⏳ Pending' : '⚠ Required'}
+                      {doc.status === 'verified' ? '✓ Đã Xác Minh' : doc.status === 'pending' ? '⏳ Đang Chờ' : '⚠ Yêu Cầu'}
                     </span>
                   </div>
                 ))}
               </div>
               <button className="w-full mt-4 text-sm text-primary hover:underline">
-                View All Documents →
+                Xem Tất Cả Tài Liệu →
               </button>
             </CardContent>
           </Card>
@@ -188,26 +188,26 @@ export default function StudentDashboard() {
           {/* Quick Actions */}
           <Card>
             <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>What would you like to do?</CardDescription>
+              <CardTitle>Thao Tác Nhanh</CardTitle>
+              <CardDescription>Bạn muốn làm gì?</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-2">
                 <button className="flex flex-col items-center justify-center p-4 rounded-lg border bg-card hover:bg-accent transition-colors">
                   <FileCheck className="h-6 w-6 mb-2" />
-                  <span className="text-sm font-medium">Upload Document</span>
+                  <span className="text-sm font-medium">Tải Lên Tài Liệu</span>
                 </button>
                 <button className="flex flex-col items-center justify-center p-4 rounded-lg border bg-card hover:bg-accent transition-colors">
                   <MessageCircle className="h-6 w-6 mb-2" />
-                  <span className="text-sm font-medium">Chat with AI</span>
+                  <span className="text-sm font-medium">Trò Chuyện Với AI</span>
                 </button>
                 <button className="flex flex-col items-center justify-center p-4 rounded-lg border bg-card hover:bg-accent transition-colors">
                   <BookOpen className="h-6 w-6 mb-2" />
-                  <span className="text-sm font-medium">Knowledge Base</span>
+                  <span className="text-sm font-medium">Cơ Sở Kiến Thức</span>
                 </button>
                 <button className="flex flex-col items-center justify-center p-4 rounded-lg border bg-card hover:bg-accent transition-colors">
                   <GraduationCap className="h-6 w-6 mb-2" />
-                  <span className="text-sm font-medium">My Profile</span>
+                  <span className="text-sm font-medium">Hồ Sơ Của Tôi</span>
                 </button>
               </div>
             </CardContent>
@@ -216,14 +216,14 @@ export default function StudentDashboard() {
           {/* Knowledge Base - Limited Access */}
           <Card>
             <CardHeader>
-              <CardTitle>Helpful Resources</CardTitle>
-              <CardDescription>Guides and information</CardDescription>
+              <CardTitle>Tài Nguyên Hữu Ích</CardTitle>
+              <CardDescription>Hướng dẫn và thông tin</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               {[
-                { title: 'How to Apply for a Student Visa', category: 'Visa Guide' },
-                { title: 'Preparing for Your IELTS Test', category: 'English Requirements' },
-                { title: 'Accommodation Options Abroad', category: 'Living Overseas' },
+                { title: 'Cách Xin Visa Du Học', category: 'Hướng Dẫn Visa' },
+                { title: 'Chuẩn Bị Cho Kỳ Thi IELTS', category: 'Yêu Cầu Tiếng Anh' },
+                { title: 'Các Lựa Chọn Nhà Ở Nước Ngoài', category: 'Sống Ở Nước Ngoài' },
               ].map((article) => (
                 <div key={article.title} className="p-3 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer">
                   <p className="text-sm font-medium">{article.title}</p>
@@ -231,7 +231,7 @@ export default function StudentDashboard() {
                 </div>
               ))}
               <button className="w-full text-sm text-primary hover:underline">
-                Browse All Articles →
+                Duyệt Tất Cả Bài Viết →
               </button>
             </CardContent>
           </Card>
@@ -239,24 +239,24 @@ export default function StudentDashboard() {
           {/* Important Notifications */}
           <Card>
             <CardHeader>
-              <CardTitle>Important Updates</CardTitle>
-              <CardDescription>Don't miss these deadlines</CardDescription>
+              <CardTitle>Cập Nhật Quan Trọng</CardTitle>
+              <CardDescription>Đừng bỏ lỡ những hạn chót này</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
                 <p className="text-sm font-medium text-red-800 dark:text-red-200">
-                  ⚠ University of Sydney Application Deadline
+                  ⚠ Hạn Chót Nộp Đơn Đại Học Sydney
                 </p>
                 <p className="text-xs text-red-600 dark:text-red-300 mt-1">
-                  December 15, 2024 - 5 days remaining
+                  15 Tháng 12, 2024 - Còn 5 ngày
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
                 <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                  📅 Schedule Counseling Session
+                  📅 Lên Lịch Buổi Tư Vấn
                 </p>
                 <p className="text-xs text-blue-600 dark:text-blue-300 mt-1">
-                  Your counselor is available this week
+                  Giáo viên tư vấn của bạn có sẵn trong tuần này
                 </p>
               </div>
             </CardContent>

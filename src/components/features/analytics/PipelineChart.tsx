@@ -24,20 +24,34 @@ export const PipelineChart = memo(function PipelineChart() {
   }
 
   return (
-    <Card>
+    <Card className="hover:shadow-xl transition-all duration-300 border-2 border-gray-200 dark:border-gray-700 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <CardHeader>
-        <CardTitle>Pipeline Overview</CardTitle>
-        <CardDescription>Student journey through application stages</CardDescription>
+        <CardTitle className="text-xl font-bold text-gray-900 dark:text-white">Pipeline Overview</CardTitle>
+        <CardDescription className="text-gray-600 dark:text-gray-400">Student journey through application stages</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px] w-full">
+        <div className="h-[300px] w-full" style={{ minHeight: 300, minWidth: 0 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={pipelineData || []}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="count" fill="#8884d8" radius={[4, 4, 0, 0]}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.3} />
+              <XAxis 
+                dataKey="name" 
+                tick={{ fill: '#6b7280', fontSize: 12 }}
+                axisLine={{ stroke: '#e5e7eb' }}
+              />
+              <YAxis 
+                tick={{ fill: '#6b7280', fontSize: 12 }}
+                axisLine={{ stroke: '#e5e7eb' }}
+              />
+              <Tooltip 
+                contentStyle={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}
+              />
+              <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                 {pipelineData?.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={getStageColor(entry.id)} />
                 ))}

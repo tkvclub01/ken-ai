@@ -84,17 +84,19 @@ export function AdvancedFilterPanel({
 
   return (
     <Sheet>
-      <SheetTrigger>
-        <Button variant="outline" size="sm">
-          <Filter className="h-4 w-4 mr-2" />
-          Advanced Filters
-          {hasActiveFilters && (
-            <Badge variant="secondary" className="ml-2 h-5 w-5 p-0 flex items-center justify-center">
-              !
-            </Badge>
-          )}
-        </Button>
-      </SheetTrigger>
+      <SheetTrigger
+        render={
+          <Button variant="outline" size="sm">
+            <Filter className="h-4 w-4 mr-2" />
+            Advanced Filters
+            {hasActiveFilters && (
+              <Badge variant="secondary" className="ml-2 h-5 w-5 p-0 flex items-center justify-center">
+                !
+              </Badge>
+            )}
+          </Button>
+        }
+      />
       <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Advanced Filters</SheetTitle>

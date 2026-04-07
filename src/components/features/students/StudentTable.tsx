@@ -141,7 +141,7 @@ export function StudentTable() {
       <div className="flex items-center justify-center py-8">
         <div className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
-          <p className="mt-4 text-muted-foreground">Loading students...</p>
+          <p className="mt-4 text-muted-foreground">Đang tải hồ sơ...</p>
         </div>
       </div>
     )
@@ -153,29 +153,29 @@ export function StudentTable() {
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 flex-1">
           <Input
-            placeholder="Search students..."
+            placeholder="Tìm kiếm hồ sơ..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="max-w-sm"
           />
           <Select value={statusFilter} onValueChange={(value: string | null) => value && setStatusFilter(value)}>
             <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="All Status" />
+              <SelectValue placeholder="Tất Cả Trạng Thái" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="lead">Lead</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="all">Tất Cả Trạng Thái</SelectItem>
+              <SelectItem value="lead">Tiềm Năng</SelectItem>
+              <SelectItem value="active">Đang Hoạt Động</SelectItem>
+              <SelectItem value="inactive">Không Hoạt Động</SelectItem>
+              <SelectItem value="completed">Hoàn Thành</SelectItem>
             </SelectContent>
           </Select>
           <Select value={stageFilter} onValueChange={(value: string | null) => value && setStageFilter(value)}>
             <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="All Stages" />
+              <SelectValue placeholder="Tất Cả Giai Đoạn" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Stages</SelectItem>
+              <SelectItem value="all">Tất Cả Giai Đoạn</SelectItem>
               {['lead', 'applied', 'interview', 'visa', 'departed', 'completed'].map((stage) => (
                 <SelectItem key={stage} value={stage}>
                   {stage.charAt(0).toUpperCase() + stage.slice(1)}
@@ -187,7 +187,7 @@ export function StudentTable() {
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm">
             <Download className="h-4 w-4 mr-2" />
-            Export
+            Xuất Dữ Liệu
           </Button>
           <AdvancedFilterPanel onApplyFilters={(filters) => console.log('Filters applied:', filters)} />
         </div>
@@ -210,7 +210,7 @@ export function StudentTable() {
                   size="sm"
                   onClick={() => handleSort('full_name')}
                 >
-                  Name
+                  Tên
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
@@ -224,27 +224,27 @@ export function StudentTable() {
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Nationality</TableHead>
-              <TableHead>Target Country</TableHead>
+              <TableHead>Số Điện Thoại</TableHead>
+              <TableHead>Quốc Tịch</TableHead>
+              <TableHead>Quốc Gia Mục Tiêu</TableHead>
               <TableHead>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => handleSort('current_stage')}
                 >
-                  Stage
+                  Giai Đoạn
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Trạng Thái</TableHead>
               <TableHead>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => handleSort('created_at')}
                 >
-                  Created
+                  Ngày Tạo
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
@@ -291,18 +291,18 @@ export function StudentTable() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem>
                         <Eye className="mr-2 h-4 w-4" />
-                        View Details
+                        Xem Chi Tiết
                       </DropdownMenuItem>
                       <DropdownMenuItem>
                         <Pencil className="mr-2 h-4 w-4" />
-                        Edit
+                        Chỉnh Sửa
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         onClick={() => handleDelete(student.id)}
                         className="text-destructive"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
+                        Xóa
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -312,7 +312,7 @@ export function StudentTable() {
             {paginatedStudents.length === 0 && (
               <TableRow>
                 <TableCell colSpan={10} className="h-24 text-center">
-                  No students found
+                  Không tìm thấy hồ sơ nào
                 </TableCell>
               </TableRow>
             )}
@@ -323,7 +323,7 @@ export function StudentTable() {
       {/* Pagination */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-muted-foreground">
-          Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, sortedStudents.length)} of {sortedStudents.length} students
+          Hiển thị {(page - 1) * pageSize + 1} đến {Math.min(page * pageSize, sortedStudents.length)} trong tổng số {sortedStudents.length} hồ sơ
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -332,7 +332,7 @@ export function StudentTable() {
             onClick={() => setPage(page - 1)}
             disabled={page === 1}
           >
-            Previous
+            Trước
           </Button>
           <div className="flex items-center gap-1">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
@@ -352,7 +352,7 @@ export function StudentTable() {
             onClick={() => setPage(page + 1)}
             disabled={page === totalPages}
           >
-            Next
+            Tiếp
           </Button>
         </div>
       </div>
@@ -367,15 +367,15 @@ export function StudentTable() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Student?</AlertDialogTitle>
+            <AlertDialogTitle>Xóa Hồ Sơ?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the student record and all associated data.
+              Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn hồ sơ và tất cả dữ liệu liên quan.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDeleteStudent} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
+              Xóa
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

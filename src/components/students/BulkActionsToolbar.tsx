@@ -99,7 +99,7 @@ export function BulkActionsToolbar({
       {operationProgress && operationProgress.status === 'processing' && (
         <div className="mb-3 space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span>Processing...</span>
+            <span>Đang xử lý...</span>
             <span>
               {operationProgress.completed} / {operationProgress.total}
             </span>
@@ -115,7 +115,7 @@ export function BulkActionsToolbar({
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="h-7">
             <Users className="h-3 w-3 mr-1" />
-            {selectedStudentIds.length} selected
+            {selectedStudentIds.length} đã chọn
           </Badge>
         </div>
 
@@ -126,25 +126,25 @@ export function BulkActionsToolbar({
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
                   <UserPlus className="h-4 w-4 mr-2" />
-                  Assign Counselor
+                  Phân Công Giáo Viên
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onSelect={() => setAssignDialogOpen(true)}>
-                  Select Counselor...
+                  Chọn Giáo Viên...
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Assign Counselor</DialogTitle>
+                <DialogTitle>Phân Công Giáo Viên</DialogTitle>
                 <DialogDescription>
-                  Assign a counselor to {selectedStudentIds.length} selected students
+                  Phân công giáo viên cho {selectedStudentIds.length} hồ sơ đã chọn
                 </DialogDescription>
               </DialogHeader>
               <Select value={selectedCounselor} onValueChange={(value) => value && setSelectedCounselor(value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select counselor" />
+                  <SelectValue placeholder="Chọn giáo viên" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="counselor-1">John Smith</SelectItem>
@@ -154,13 +154,13 @@ export function BulkActionsToolbar({
               </Select>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>
-                  Cancel
+                  Hủy
                 </Button>
                 <Button
                   onClick={handleAssignCounselor}
                   disabled={!selectedCounselor || bulkAssignCounselor.isPending}
                 >
-                  {bulkAssignCounselor.isPending ? 'Assigning...' : 'Assign'}
+                  {bulkAssignCounselor.isPending ? 'Đang phân công...' : 'Phân Công'}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -171,43 +171,43 @@ export function BulkActionsToolbar({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
-                  Update Status
+                  Cập Nhật Trạng Thái
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onSelect={() => setStatusDialogOpen(true)}>
-                  Change Status...
+                  Thay Đổi Trạng Thái...
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Update Status</DialogTitle>
+                <DialogTitle>Cập Nhật Trạng Thái</DialogTitle>
                 <DialogDescription>
-                  Update status for {selectedStudentIds.length} selected students
+                  Cập nhật trạng thái cho {selectedStudentIds.length} hồ sơ đã chọn
                 </DialogDescription>
               </DialogHeader>
               <Select value={selectedStatus} onValueChange={(value) => value && setSelectedStatus(value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
+                  <SelectValue placeholder="Chọn trạng thái" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="lead">Lead</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
+                  <SelectItem value="lead">Tiềm Năng</SelectItem>
+                  <SelectItem value="active">Đang Hoạt Động</SelectItem>
+                  <SelectItem value="inactive">Không Hoạt Động</SelectItem>
+                  <SelectItem value="completed">Hoàn Thành</SelectItem>
+                  <SelectItem value="rejected">Từ Chối</SelectItem>
                 </SelectContent>
               </Select>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setStatusDialogOpen(false)}>
-                  Cancel
+                  Hủy
                 </Button>
                 <Button
                   onClick={handleUpdateStatus}
                   disabled={!selectedStatus || bulkUpdateStatus.isPending}
                 >
-                  {bulkUpdateStatus.isPending ? 'Updating...' : 'Update'}
+                  {bulkUpdateStatus.isPending ? 'Đang cập nhật...' : 'Cập Nhật'}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -221,7 +221,7 @@ export function BulkActionsToolbar({
             disabled={bulkExportStudents.isPending}
           >
             <FileDown className="h-4 w-4 mr-2" />
-            {bulkExportStudents.isPending ? 'Exporting...' : 'Export CSV'}
+            {bulkExportStudents.isPending ? 'Đang xuất...' : 'Xuất CSV'}
           </Button>
 
           {/* Delete */}
@@ -233,30 +233,30 @@ export function BulkActionsToolbar({
               disabled={bulkDeleteStudents.isPending}
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Delete
+              Xóa
             </Button>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2 text-destructive">
                   <AlertTriangle className="h-5 w-5" />
-                  Delete Students?
+                  Xóa Hồ Sơ?
                 </DialogTitle>
                 <DialogDescription>
-                  This action cannot be undone. This will permanently delete{' '}
-                  <strong>{selectedStudentIds.length} students</strong> and all
-                  associated data including documents and communications.
+                  Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn{' '}
+                  <strong>{selectedStudentIds.length} hồ sơ</strong> và tất cả
+                  dữ liệu liên quan bao gồm tài liệu và thông tin liên lạc.
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-                  Cancel
+                  Hủy
                 </Button>
                 <Button
                   variant="destructive"
                   onClick={handleDelete}
                   disabled={bulkDeleteStudents.isPending}
                 >
-                  {bulkDeleteStudents.isPending ? 'Deleting...' : 'Delete'}
+                  {bulkDeleteStudents.isPending ? 'Đang xóa...' : 'Xóa'}
                 </Button>
               </DialogFooter>
             </DialogContent>

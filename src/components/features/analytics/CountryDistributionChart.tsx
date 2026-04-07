@@ -66,7 +66,7 @@ export const CountryDistributionChart = memo(function CountryDistributionChart()
         <CardDescription>Top destinations for student applications</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px] w-full">
+        <div className="h-[300px] w-full" style={{ minHeight: 300, minWidth: 0 }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie

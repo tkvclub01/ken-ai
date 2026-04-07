@@ -17,9 +17,9 @@ export default function DocumentsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Documents</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Tài Liệu</h1>
         <p className="text-muted-foreground">
-          Upload, manage, and process student documents with OCR
+          Tải lên, quản lý và xử lý tài liệu học sinh với OCR
         </p>
       </div>
 
@@ -27,11 +27,11 @@ export default function DocumentsPage() {
         <TabsList>
           <TabsTrigger value="upload" className="gap-2">
             <Upload className="h-4 w-4" />
-            Upload
+            Tải Lên
           </TabsTrigger>
           <TabsTrigger value="browse" className="gap-2">
             <FileText className="h-4 w-4" />
-            Browse
+            Duyệt Tài Liệu
           </TabsTrigger>
         </TabsList>
 

@@ -6,53 +6,59 @@ import { NavItem } from '@/types'
 export const NAVIGATION: NavItem[] = [
   // Management Group
   {
-    title: 'Dashboard',
+    title: 'Bảng Điều Khiển',
     href: '/',
     icon: 'LayoutDashboard',
     group: 'management',
   },
   {
-    title: 'Students',
+    title: 'Hồ Sơ',
     href: '/students',
     icon: 'Users',
     group: 'management',
   },
   {
-    title: 'Documents',
+    title: 'Trường / Đối Tác',
+    href: '/schools',
+    icon: 'BookOpen',
+    group: 'management',
+  },
+  {
+    title: 'Tài Liệu',
     href: '/documents',
     icon: 'FileText',
     group: 'management',
   },
   // AI Tools Group
   {
-    title: 'AI Chat',
+    title: 'Trợ Lý AI',
     href: '/chat',
     icon: 'MessageSquare',
     group: 'ai-tools',
     badge: 'AI',
   },
   {
-    title: 'Knowledge Base',
+    title: 'Cơ Sở Kiến Thức',
     href: '/knowledge',
     icon: 'BookOpen',
     group: 'ai-tools',
   },
   // Settings Group
   {
-    title: 'Analytics',
+    title: 'Phân Tích',
     href: '/analytics',
     icon: 'BarChart3',
     group: 'settings',
   },
   {
-    title: 'Employee Management',
+    title: 'Quản Lý Nhân Viên',
     href: '/settings/users',
     icon: 'Users',
     group: 'settings',
     badge: 'Admin',
   },
   {
-    title: 'Settings',
+    title: 'Cài Đặt',
     href: '/settings',
     icon: 'Settings',
     group: 'settings',
@@ -63,28 +69,28 @@ export const NAVIGATION: NavItem[] = [
  * Pipeline stages configuration
  */
 export const PIPELINE_STAGES = [
-  { id: 'lead', name: 'Lead', color: '#6B7280', order: 1 },
-  { id: 'applied', name: 'Applied', color: '#3B82F6', order: 2 },
-  { id: 'interview', name: 'Interview', color: '#F59E0B', order: 3 },
-  { id: 'visa', name: 'Visa Processing', color: '#8B5CF6', order: 4 },
-  { id: 'departed', name: 'Departed', color: '#10B981', order: 5 },
-  { id: 'completed', name: 'Completed', color: '#059669', order: 6 },
+  { id: 'lead', name: 'Tiềm Năng', color: '#6B7280', order: 1 },
+  { id: 'applied', name: 'Đã Nộp Đơn', color: '#3B82F6', order: 2 },
+  { id: 'interview', name: 'Phỏng Vấn', color: '#F59E0B', order: 3 },
+  { id: 'visa', name: 'Xử Lý Visa', color: '#8B5CF6', order: 4 },
+  { id: 'departed', name: 'Đã Khởi Hành', color: '#10B981', order: 5 },
+  { id: 'completed', name: 'Hoàn Thành', color: '#059669', order: 6 },
 ]
 
 /**
  * Document types supported
  */
 export const DOCUMENT_TYPES = [
-  'Passport',
-  'Academic Transcript',
-  'IELTS/TOEFL Score',
-  'Statement of Purpose',
-  'Letter of Recommendation',
-  'CV/Resume',
-  'Financial Documents',
-  'Visa Application',
-  'Offer Letter',
-  'Other',
+  'Hộ Chiếu',
+  'Bảng Điểm Học Tập',
+  'Chứng Chỉ IELTS/TOEFL',
+  'Bài Luận Cá Nhân',
+  'Thư Giới Thiệu',
+  'Sơ Yếu Lý Lịch',
+  'Tài Liệu Tài Chính',
+  'Đơn Xin Visa',
+  'Thư Mời Nhập Học',
+  'Khác',
 ]
 
 /**
@@ -92,7 +98,7 @@ export const DOCUMENT_TYPES = [
  */
 export const APP_SETTINGS = {
   name: 'KEN AI',
-  description: 'Intelligent Student Management Platform',
+  description: 'Nền Tảng Quản Lý Hồ Sơ Học Sinh Thông Minh',
   version: '1.0.0',
   maxFileSize: 10 * 1024 * 1024, // 10MB
   allowedFileTypes: ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],

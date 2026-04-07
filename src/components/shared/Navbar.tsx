@@ -79,32 +79,32 @@ export function Navbar() {
         const defaultNotifications: Notification[] = [
           {
             id: '1',
-            title: 'Document Uploaded',
-            message: 'passport_john.pdf has been uploaded successfully',
+            title: 'Tài Liệu Đã Tải Lên',
+            message: 'passport_john.pdf đã được tải lên thành công',
             time: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // 5 minutes ago
             read: false,
             type: 'success'
           },
           {
             id: '2',
-            title: 'Student Assignment',
-            message: 'You have been assigned to student: Sarah Connor',
+            title: 'Phân Công Hồ Sơ',
+            message: 'Bạn đã được phân công cho hồ sơ: Sarah Connor',
             time: new Date(Date.now() - 60 * 60 * 1000).toISOString(), // 1 hour ago
             read: false,
             type: 'info'
           },
           {
             id: '3',
-            title: 'Visa Application',
-            message: 'Student visa application for Mike Chen is due tomorrow',
+            title: 'Đơn Xin Visa',
+            message: 'Đơn xin visa du học cho Mike Chen sẽ hết hạn vào ngày mai',
             time: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
             read: true,
             type: 'warning'
           },
           {
             id: '4',
-            title: 'System Update',
-            message: 'New features have been added to the platform',
+            title: 'Cập Nhật Hệ Thống',
+            message: 'Các tính năng mới đã được thêm vào nền tảng',
             time: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
             read: true,
             type: 'info'
@@ -171,10 +171,10 @@ export function Navbar() {
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
 
-    if (diffMinutes < 1) return 'Just now'
-    if (diffMinutes < 60) return `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''} ago`
-    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
+    if (diffMinutes < 1) return 'Vừa xong'
+    if (diffMinutes < 60) return `${diffMinutes} phút trước`
+    if (diffHours < 24) return `${diffHours} giờ trước`
+    return `${diffDays} ngày trước`
   }
 
   return (
@@ -190,7 +190,7 @@ export function Navbar() {
           >
             <Search className="h-4 w-4" />
             <span className="text-muted-foreground flex-1 text-left">
-              Search...
+              Tìm kiếm...
             </span>
             <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground opacity-100">
               <span className="text-xs">⌘</span>K
@@ -211,15 +211,15 @@ export function Navbar() {
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setTheme('light')}>
                 <Sun className="mr-2 h-4 w-4" />
-                Light
+                Sáng
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTheme('dark')}>
                 <Moon className="mr-2 h-4 w-4" />
-                Dark
+                Tối
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTheme('system')}>
                 <Monitor className="mr-2 h-4 w-4" />
-                System
+                Hệ Thống
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -239,10 +239,10 @@ export function Navbar() {
             <DropdownMenuContent align="end" className="w-80">
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="flex items-center justify-between">
-                  <span>Notifications</span>
+                  <span>Thông Báo</span>
                   {unreadCount > 0 && (
                     <span className="text-xs font-normal text-muted-foreground">
-                      {unreadCount} unread
+                      {unreadCount} chưa đọc
                     </span>
                   )}
                 </DropdownMenuLabel>
@@ -252,7 +252,7 @@ export function Navbar() {
               {notifications.length === 0 ? (
                 <div className="py-8 text-center text-sm text-muted-foreground">
                   <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  No notifications
+                  Không có thông báo
                 </div>
               ) : (
                 <>
@@ -314,7 +314,7 @@ export function Navbar() {
                       disabled={unreadCount === 0}
                     >
                       <Check className="h-3 w-3 mr-1" />
-                      Mark all read
+                      Đánh dấu đã đọc
                     </Button>
                     <Button
                       variant="ghost"
@@ -324,7 +324,7 @@ export function Navbar() {
                       disabled={notifications.length === 0}
                     >
                       <Trash2 className="h-3 w-3 mr-1" />
-                      Clear all
+                      Xóa tất cả
                     </Button>
                   </div>
                 </>
@@ -348,16 +348,16 @@ export function Navbar() {
             <DropdownMenuContent align="end">
               <DropdownMenuGroup>
                 <DropdownMenuLabel>
-                  {user?.email || 'Guest User'}
+                  {user?.email || 'Khách'}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => router.push('/settings')}>
                   <Settings className="mr-2 h-4 w-4" />
-                  Settings
+                  Cài Đặt
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => signOut()}>
                   <LogOut className="mr-2 h-4 w-4" />
-                  Log out
+                  Đăng Xuất
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>

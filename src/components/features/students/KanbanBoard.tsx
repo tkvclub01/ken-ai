@@ -10,15 +10,18 @@ import { useStudents, useUpdateStudent } from '@/hooks/useStudents'
 import { Student } from '@/types'
 import { PIPELINE_STAGES } from '@/lib/constants'
 import { getStageColor, cn } from '@/lib/utils'
-import { Users, Plus, MoreHorizontal } from 'lucide-react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { Users, Plus } from 'lucide-react'
+import { Eye, Pencil, Trash2 } from 'lucide-react'
 
-export function KanbanBoard() {
+interface KanbanBoardProps {
+  onViewDetails: (student: Student) => void
+  onEditStudent?: (student: Student) => void
+  onDeleteStudent?: (student: Student) => void
+}
+
+export function KanbanBoard({
+  onViewDetails,
+}: KanbanBoardProps) {
   const { data: students = [], isLoading } = useStudents()
   const updateStudent = useUpdateStudent()
   const [draggedStudent, setDraggedStudent] = useState<Student | null>(null)
@@ -71,6 +74,7 @@ export function KanbanBoard() {
               stage={stage}
               students={students.filter((s) => s.current_stage === stage.id)}
               onDragStart={setDraggedStudent}
+              onViewDetails={onViewDetails}
             />
           ))}
         </div>
@@ -83,9 +87,10 @@ interface PipelineColumnProps {
   stage: typeof PIPELINE_STAGES[0]
   students: Student[]
   onDragStart: (student: Student) => void
+  onViewDetails: (student: Student) => void
 }
 
-function PipelineColumn({ stage, students, onDragStart }: PipelineColumnProps) {
+function PipelineColumn({ stage, students, onDragStart, onViewDetails }: PipelineColumnProps) {
   return (
     <div
       className="flex-shrink-0 w-80 bg-muted/50 rounded-lg p-4"
@@ -109,6 +114,7 @@ function PipelineColumn({ stage, students, onDragStart }: PipelineColumnProps) {
               key={student.id}
               student={student}
               onDragStart={() => onDragStart(student)}
+              onClick={() => onViewDetails(student)}
             />
           ))}
           {students.length === 0 && (
@@ -128,35 +134,29 @@ const MemoizedPipelineColumn = memo(PipelineColumn)
 interface StudentCardProps {
   student: Student
   onDragStart: () => void
+  onClick: () => void
 }
 
-function StudentCard({ student, onDragStart }: StudentCardProps) {
+function StudentCard({ student, onDragStart, onClick }: StudentCardProps) {
   return (
     <Card
-      className="cursor-move hover:shadow-lg transition-shadow bg-card"
+      className="cursor-pointer hover:shadow-lg transition-shadow bg-card group"
       draggable
-      onDragStart={onDragStart}
+      onDragStart={(e) => {
+        e.stopPropagation()
+        onDragStart()
+      }}
+      onClick={(e) => {
+        e.stopPropagation()
+        onClick()
+      }}
     >
       <CardHeader className="p-3 pb-2">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-sm font-medium">{student.full_name}</CardTitle>
+            <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">{student.full_name}</CardTitle>
             <p className="text-xs text-muted-foreground mt-1">{student.email}</p>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button variant="ghost" size="icon" className="h-6 w-6">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>View Details</DropdownMenuItem>
-              <DropdownMenuItem>Edit Student</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive">
-                Delete Student
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </CardHeader>
       <CardContent className="p-3 pt-0">

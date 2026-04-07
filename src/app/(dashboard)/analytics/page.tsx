@@ -12,9 +12,9 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Phân Tích</h1>
         <p className="text-muted-foreground">
-          Comprehensive insights into your student management pipeline
+          Thông tin chi tiết toàn diện về quy trình quản lý học sinh của bạn
         </p>
       </div>
 
@@ -32,7 +32,7 @@ export default function AnalyticsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5" />
-            Recent Activity
+            Hoạt Động Gần Đây
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -45,10 +45,10 @@ export default function AnalyticsPage() {
         <div>
           <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             <BookOpen className="h-6 w-6" />
-            Knowledge Base Analytics
+            Phân Tích Cơ Sở Kiến Thức
           </h2>
           <p className="text-muted-foreground">
-            Track article performance and identify content gaps
+            Theo dõi hiệu suất bài viết và xác định khoảng trống nội dung
           </p>
         </div>
         <KnowledgeBaseAnalytics />

@@ -1,13 +1,62 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, BookOpen, MessageSquare, FileText, Sparkles, Users, BarChart3, Shield, Zap, Check, Star, Crown, Bot, X, Menu, Mail, Phone, MapPin, Send, Newspaper, Info, HelpCircle, ChevronRight, Calendar } from 'lucide-react'
+import { ArrowRight, BookOpen, MessageSquare, FileText, Sparkles, Users, BarChart3, Shield, Zap, Check, Star, Crown, Bot, X, Menu, Mail, Phone, MapPin, Send, Newspaper, Info, HelpCircle, ChevronRight, Calendar, LogOut, LayoutDashboard } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { signOut } from '@/lib/supabase/auth'
 
 export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set())
+  const [userSession, setUserSession] = useState<any>(null)
+  const [userRole, setUserRole] = useState<string | null>(null)
+  const supabase = createClient()
+  
+  // Check authentication status on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        setUserSession(session)
+        
+        if (session?.user) {
+          // Fetch user role
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single()
+          
+          setUserRole(profile?.role || null)
+        }
+      } catch (error) {
+        console.error('Error checking auth:', error)
+      }
+    }
+    
+    checkAuth()
+    
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUserSession(session)
+      
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single()
+        
+        setUserRole(profile?.role || null)
+      } else {
+        setUserRole(null)
+      }
+    })
+    
+    return () => subscription.unsubscribe()
+  }, [supabase])
   
   // Intersection Observer for scroll animations
   useEffect(() => {
@@ -33,6 +82,34 @@ export default function Home() {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' })
       setIsMobileMenuOpen(false)
+    }
+  }
+  
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      setUserSession(null)
+      setUserRole(null)
+    } catch (error) {
+      console.error('Sign out error:', error)
+    }
+  }
+  
+  // Get dashboard link based on user role
+  const getDashboardLink = () => {
+    if (!userRole) return '/student'
+    
+    switch (userRole) {
+      case 'admin':
+        return '/admin'
+      case 'manager':
+      case 'counselor':
+      case 'processor':
+        return '/employee'
+      case 'student':
+        return '/student'
+      default:
+        return '/student'
     }
   }
 
@@ -69,26 +146,57 @@ export default function Home() {
             </nav>
             
             <div className="flex items-center gap-4">
-              <Link
-                href="/login"
-                className="hidden sm:block px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-              >
-                Đăng nhập
-              </Link>
-              <Link
-                href="/signup"
-                className="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-md hover:shadow-lg"
-              >
-                Đăng ký
-              </Link>
-              
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-              >
-                <Menu className="w-6 h-6" />
-              </button>
+              {userSession ? (
+                // Authenticated user - Show dashboard link and logout
+                <>
+                  <Link
+                    href={getDashboardLink()}
+                    className="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg"
+                  >
+                    <LayoutDashboard className="w-4 h-4" />
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Đăng xuất
+                  </button>
+                  
+                  {/* Mobile Menu Button */}
+                  <button
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    className="md:hidden p-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  >
+                    <Menu className="w-6 h-6" />
+                  </button>
+                </>
+              ) : (
+                // Not authenticated - Show login and signup
+                <>
+                  <Link
+                    href="/login"
+                    className="hidden sm:block px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  >
+                    Đăng nhập
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-md hover:shadow-lg"
+                  >
+                    Đăng ký
+                  </Link>
+                  
+                  {/* Mobile Menu Button */}
+                  <button
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    className="md:hidden p-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  >
+                    <Menu className="w-6 h-6" />
+                  </button>
+                </>
+              )}
             </div>
           </div>
           
@@ -108,9 +216,30 @@ export default function Home() {
                 <button onClick={() => scrollToSection('contact')} className="text-left text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors px-2 py-1">
                   Liên hệ
                 </button>
-                <Link href="/login" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors px-2 py-1">
-                  Đăng nhập
-                </Link>
+                
+                {userSession ? (
+                  // Mobile: Show dashboard and logout for authenticated users
+                  <>
+                    <Link 
+                      href={getDashboardLink()} 
+                      className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors px-2 py-1"
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      Dashboard
+                    </Link>
+                    <button 
+                      onClick={handleSignOut}
+                      className="text-left text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors px-2 py-1"
+                    >
+                      Đăng xuất
+                    </button>
+                  </>
+                ) : (
+                  // Mobile: Show login for non-authenticated users
+                  <Link href="/login" className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors px-2 py-1">
+                    Đăng nhập
+                  </Link>
+                )}
               </nav>
             </div>
           )}

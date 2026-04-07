@@ -122,7 +122,7 @@ export function AIChatPanel() {
       // Refresh conversations list to update title
       loadConversations()
     } else {
-      toast.error('Failed to send message', {
+      toast.error('Không thể gửi tin nhắn', {
         description: response.error,
       })
     }
@@ -151,7 +151,7 @@ export function AIChatPanel() {
       if (currentConvId === convToDelete) {
         handleNewChat()
       }
-      toast.success('Conversation deleted')
+      toast.success('Đã xóa cuộc trò chuyện')
     }
     setDeleteDialogOpen(false)
     setConvToDelete(null)
@@ -159,7 +159,7 @@ export function AIChatPanel() {
 
   const handleGenerateEmail = async () => {
     if (!emailPurpose.trim()) {
-      toast.error('Please enter email purpose')
+      toast.error('Vui lòng nhập mục đích email')
       return
     }
 
@@ -168,9 +168,9 @@ export function AIChatPanel() {
     
     if (response.success) {
       setGeneratedEmail({ subject: response.subject, body: response.body })
-      toast.success('Email generated!')
+      toast.success('Đã tạo email!')
     } else {
-      toast.error('Failed to generate email', {
+      toast.error('Không thể tạo email', {
         description: response.error,
       })
     }
@@ -180,7 +180,7 @@ export function AIChatPanel() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
-    toast.success('Copied to clipboard!')
+    toast.success('Đã sao chép vào clipboard!')
   }
 
   return (
@@ -191,7 +191,7 @@ export function AIChatPanel() {
           <div className="p-4 border-b">
             <Button onClick={handleNewChat} className="w-full">
               <Plus className="w-4 h-4 mr-2" />
-              New Chat
+              Cuộc Trò Chuyện Mới
             </Button>
           </div>
           
@@ -213,7 +213,7 @@ export function AIChatPanel() {
                     </div>
                     {conv.students && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        Student: {conv.students.full_name}
+                        Học sinh: {conv.students.full_name}
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground mt-1">
@@ -248,25 +248,25 @@ export function AIChatPanel() {
               <ChevronLeft className={`w-4 h-4 transition-transform ${showSidebar ? '' : 'rotate-180'}`} />
             </Button>
             <div>
-              <h2 className="font-semibold">AI Assistant</h2>
+              <h2 className="font-semibold">Trợ Lý AI</h2>
               <p className="text-xs text-muted-foreground">
-                Powered by KEN AI with knowledge base
+                Được cung cấp bởi KEN AI với cơ sở kiến thức
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Select value={selectedStudent || ''} onValueChange={(v) => setSelectedStudent(v || '')}>
               <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Select student (optional)" />
+                <SelectValue placeholder="Chọn học sinh (tùy chọn)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No student selected</SelectItem>
+                <SelectItem value="">Không chọn học sinh</SelectItem>
                 {/* Populate with students in real app */}
               </SelectContent>
             </Select>
             <Button variant="outline" onClick={() => setShowEmailDialog(true)}>
               <Mail className="w-4 h-4 mr-2" />
-              Draft Email
+              Soạn Email
             </Button>
           </div>
         </div>
@@ -277,10 +277,10 @@ export function AIChatPanel() {
             {messages.length === 0 ? (
               <div className="text-center py-12">
                 <Bot className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="text-lg font-semibold mb-2">Welcome to KEN AI Chat</h3>
+                <h3 className="text-lg font-semibold mb-2">Chào mừng đến với KEN AI Chat</h3>
                 <p className="text-muted-foreground max-w-md mx-auto">
-                  Ask me anything about study abroad policies, visa requirements, or university applications.
-                  I have access to our knowledge base for accurate information.
+                  Hỏi tôi bất cứ điều gì về chính sách du học, yêu cầu visa, hoặc quy trình nộp đơn đại học.
+                  Tôi có quyền truy cập vào cơ sở kiến thức để cung cấp thông tin chính xác.
                 </p>
               </div>
             ) : (
@@ -302,7 +302,7 @@ export function AIChatPanel() {
                         <p className="whitespace-pre-wrap">{message.content}</p>
                         {message.metadata?.sources && message.metadata.sources.length > 0 && (
                           <div className="mt-2 pt-2 border-t">
-                            <p className="text-xs text-muted-foreground mb-1">Sources:</p>
+                            <p className="text-xs text-muted-foreground mb-1">Nguồn:</p>
                             <div className="flex flex-wrap gap-1">
                               {message.metadata.sources.map((source: any, i: number) => (
                                 <Badge key={i} variant="outline" className="text-xs">
@@ -319,7 +319,7 @@ export function AIChatPanel() {
                             className="mt-2 h-8"
                             onClick={() => copyToClipboard(message.content)}
                           >
-                            Copy
+                            Sao Chép
                           </Button>
                         )}
                       </CardContent>
@@ -347,7 +347,7 @@ export function AIChatPanel() {
                   handleSend()
                 }
               }}
-              placeholder="Ask about visa requirements, university policies, or application procedures..."
+              placeholder="Hỏi về yêu cầu visa, chính sách đại học, hoặc quy trình nộp đơn..."
               className="min-h-[80px] resize-none"
               disabled={loading}
             />
@@ -370,51 +370,51 @@ export function AIChatPanel() {
       <Dialog open={showEmailDialog} onOpenChange={setShowEmailDialog}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Draft Email</DialogTitle>
+            <DialogTitle>Soạn Email</DialogTitle>
             <DialogDescription>
-              AI will generate a professional email based on your purpose.
+              AI sẽ tạo một email chuyên nghiệp dựa trên mục đích của bạn.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="purpose">Email Purpose</Label>
+              <Label htmlFor="purpose">Mục Đích Email</Label>
               <Textarea
                 id="purpose"
                 value={emailPurpose}
                 onChange={(e) => setEmailPurpose(e.target.value)}
-                placeholder="e.g., Request transcript from university, Ask about scholarship requirements..."
+                placeholder="Ví dụ: Yêu cầu bảng điểm từ trường đại học, Hỏi về yêu cầu học bổng..."
                 rows={4}
               />
             </div>
             <div>
-              <Label>Student Context (Optional)</Label>
+              <Label>Bối Cảnh Học Sinh (Tùy Chọn)</Label>
               <Select value={selectedStudent || ''} onValueChange={(v) => setSelectedStudent(v || '')}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select student to include their details" />
+                  <SelectValue placeholder="Chọn học sinh để bao gồm chi tiết của họ" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No student selected</SelectItem>
+                  <SelectItem value="">Không chọn học sinh</SelectItem>
                   {/* Populate with students */}
                 </SelectContent>
               </Select>
             </div>
             {generatedEmail.subject && (
               <div className="space-y-2">
-                <Label>Generated Email</Label>
+                <Label>Email Đã Tạo</Label>
                 <Card>
                   <CardContent className="p-4 space-y-2">
                     <div>
-                      <strong>Subject:</strong> {generatedEmail.subject}
+                      <strong>Tiêu Đề:</strong> {generatedEmail.subject}
                     </div>
                     <div className="whitespace-pre-wrap">{generatedEmail.body}</div>
                   </CardContent>
                 </Card>
                 <div className="flex gap-2">
                   <Button onClick={() => copyToClipboard(generatedEmail.subject + '\n\n' + generatedEmail.body)}>
-                    Copy to Clipboard
+                    Sao Chép Vào Clipboard
                   </Button>
                   <Button variant="outline" onClick={() => setShowEmailDialog(false)}>
-                    Close
+                    Đóng
                   </Button>
                 </div>
               </div>
@@ -422,11 +422,11 @@ export function AIChatPanel() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowEmailDialog(false)}>
-              Cancel
+              Hủy
             </Button>
             <Button onClick={handleGenerateEmail} disabled={loading}>
               {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Generate Email
+              Tạo Email
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -436,15 +436,15 @@ export function AIChatPanel() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Conversation?</AlertDialogTitle>
+            <AlertDialogTitle>Xóa Cuộc Trò Chuyện?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the conversation and all its messages.
+              Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn cuộc trò chuyện và tất cả tin nhắn của nó.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDeleteConversation} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
+              Xóa
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

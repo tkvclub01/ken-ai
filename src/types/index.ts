@@ -226,6 +226,139 @@ export interface Database {
           updated_at?: string
         }
       }
+      schools: {
+        Row: {
+          id: string
+          name: string
+          country: string
+          city: string | null
+          address: string | null
+          website: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          partnership_status: 'active' | 'inactive' | 'pending' | 'terminated'
+          description: string | null
+          logo_url: string | null
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          country: string
+          city?: string | null
+          address?: string | null
+          website?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          partnership_status?: 'active' | 'inactive' | 'pending' | 'terminated'
+          description?: string | null
+          logo_url?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          country?: string
+          city?: string | null
+          address?: string | null
+          website?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          partnership_status?: 'active' | 'inactive' | 'pending' | 'terminated'
+          description?: string | null
+          logo_url?: string | null
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      school_documents: {
+        Row: {
+          id: string
+          school_id: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number
+          mime_type: string
+          uploaded_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          school_id: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number
+          mime_type: string
+          uploaded_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          school_id?: string
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          mime_type?: string
+          uploaded_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      school_email_templates: {
+        Row: {
+          id: string
+          school_id: string
+          name: string
+          subject_template: string
+          body_template: string
+          category: string | null
+          variables: string[] | null
+          created_by: string | null
+          usage_count: number | null
+          is_active: boolean | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          school_id: string
+          name: string
+          subject_template: string
+          body_template: string
+          category?: string | null
+          variables?: string[] | null
+          created_by?: string | null
+          usage_count?: number | null
+          is_active?: boolean | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          school_id?: string
+          name?: string
+          subject_template?: string
+          body_template?: string
+          category?: string | null
+          variables?: string[] | null
+          created_by?: string | null
+          usage_count?: number | null
+          is_active?: boolean | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -268,6 +401,18 @@ export type AuditLog = Database['public']['Tables']['audit_logs']['Row']
 export type KnowledgeCategory = Database['public']['Tables']['knowledge_categories']['Row']
 export type KnowledgeCategoryInsert = Database['public']['Tables']['knowledge_categories']['Insert']
 export type KnowledgeCategoryUpdate = Database['public']['Tables']['knowledge_categories']['Update']
+
+export type School = Database['public']['Tables']['schools']['Row']
+export type SchoolInsert = Database['public']['Tables']['schools']['Insert']
+export type SchoolUpdate = Database['public']['Tables']['schools']['Update']
+
+export type SchoolDocument = Database['public']['Tables']['school_documents']['Row']
+export type SchoolDocumentInsert = Database['public']['Tables']['school_documents']['Insert']
+export type SchoolDocumentUpdate = Database['public']['Tables']['school_documents']['Update']
+
+export type SchoolEmailTemplate = Database['public']['Tables']['school_email_templates']['Row']
+export type SchoolEmailTemplateInsert = Database['public']['Tables']['school_email_templates']['Insert']
+export type SchoolEmailTemplateUpdate = Database['public']['Tables']['school_email_templates']['Update']
 
 // User Profile Type - SINGLE SOURCE OF TRUTH
 export interface UserProfile {
