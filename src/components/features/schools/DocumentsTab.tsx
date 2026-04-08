@@ -95,10 +95,26 @@ export function DocumentsTab({ schoolId }: DocumentsTabProps) {
       partnership_agreement: 'Hợp Đồng Hợp Tác',
       brochure: 'Tài Liệu Giới Thiệu',
       admission_requirements: 'Yêu Cầu Tuyển Sinh',
+      visa_guidelines: 'Hướng Dẫn Visa',
       scholarship_info: 'Thông Tin Học Bổng',
       other: 'Khác',
     }
     return labels[type] || type
+  }
+
+  const getDocumentTypeIcon = (type: string) => {
+    switch (type) {
+      case 'partnership_agreement':
+        return <FileText className="h-5 w-5 text-blue-600" />
+      case 'admission_requirements':
+        return <FileText className="h-5 w-5 text-green-600" />
+      case 'visa_guidelines':
+        return <FileText className="h-5 w-5 text-purple-600" />
+      case 'brochure':
+        return <FileText className="h-5 w-5 text-orange-600" />
+      default:
+        return <FileText className="h-5 w-5 text-gray-600" />
+    }
   }
 
   const formatFileSize = (bytes: number) => {
@@ -148,7 +164,7 @@ export function DocumentsTab({ schoolId }: DocumentsTabProps) {
                 >
                   <div className="flex items-start gap-3 flex-1 min-w-0">
                     <div className="rounded-lg bg-primary/10 p-2 shrink-0">
-                      <File className="h-5 w-5 text-primary" />
+                      {getDocumentTypeIcon(doc.document_type)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">{doc.file_name}</p>
@@ -210,8 +226,9 @@ export function DocumentsTab({ schoolId }: DocumentsTabProps) {
                 className="w-full px-3 py-2 border rounded-md text-sm"
               >
                 <option value="partnership_agreement">Hợp Đồng Hợp Tác</option>
-                <option value="brochure">Tài Liệu Giới Thiệu</option>
                 <option value="admission_requirements">Yêu Cầu Tuyển Sinh</option>
+                <option value="visa_guidelines">Hướng Dẫn Visa</option>
+                <option value="brochure">Tài Liệu Giới Thiệu</option>
                 <option value="scholarship_info">Thông Tin Học Bổng</option>
                 <option value="other">Khác</option>
               </select>
