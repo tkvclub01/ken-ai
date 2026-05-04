@@ -17,7 +17,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Student } from '@/types'
+import type { School as SchoolType } from '@/types'
+import { useSchools } from '@/hooks/useSchools'
 import { formatDate, getStatusColor, cn } from '@/lib/utils'
 import {
   User,
@@ -39,6 +48,7 @@ import {
   Save,
   X,
 } from 'lucide-react'
+import { StudentDocumentsTab } from './StudentDocumentsTab'
 
 interface StudentDetailModalProps {
   student: Student | null
@@ -58,6 +68,7 @@ export function StudentDetailModal({
   const [isEditing, setIsEditing] = useState(false)
   const [editedStudent, setEditedStudent] = useState<Student | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const { data: schools, isLoading: isLoadingSchools } = useSchools()
 
   if (!student) return null
 
@@ -288,7 +299,7 @@ export function StudentDetailModal({
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <GraduationCap className="h-5 w-5 text-primary" />
-                    Academic Information
+                    Study Abroad Application
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -319,15 +330,34 @@ export function StudentDetailModal({
                     {/* Target School Field */}
                     <div className="space-y-2">
                       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        Target School
+                        Target School (Trường mục tiêu)
                       </p>
                       {isEditing ? (
                         <div className="space-y-1">
-                          <Input
+                          <p className="text-xs text-muted-foreground mb-2">
+                            University/institution for study abroad application
+                          </p>
+                          <Select
                             value={editedStudent?.target_school || ''}
-                            onChange={(e) => updateField('target_school', e.target.value)}
-                            placeholder="Target school"
-                          />
+                            onValueChange={(value) => updateField('target_school', value || '')}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select target school" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {isLoadingSchools ? (
+                                <div className="p-2 text-sm text-muted-foreground">Loading schools...</div>
+                              ) : schools && schools.length > 0 ? (
+                                schools.map((school: SchoolType) => (
+                                  <SelectItem key={school.id} value={school.name}>
+                                    {school.name} ({school.country})
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <div className="p-2 text-sm text-muted-foreground">No schools available</div>
+                              )}
+                            </SelectContent>
+                          </Select>
                         </div>
                       ) : (
                         student.target_school && (
@@ -421,33 +451,7 @@ export function StudentDetailModal({
 
             {/* Documents Tab */}
             <TabsContent value="documents" className="mt-0">
-              <Card>
-                <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between flex-col sm:flex-row gap-3 sm:gap-0">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-primary" />
-                      Uploaded Documents
-                    </CardTitle>
-                    <Button size="sm">
-                      <FileText className="h-4 w-4 mr-2" />
-                      Upload Document
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-16">
-                    <div className="rounded-full bg-muted/50 w-20 h-20 flex items-center justify-center mx-auto mb-4">
-                      <FileText className="h-10 w-10 text-muted-foreground/50" />
-                    </div>
-                    <p className="text-muted-foreground font-medium mb-1">
-                      No documents uploaded yet
-                    </p>
-                    <p className="text-sm text-muted-foreground/70">
-                      Upload documents to keep track of student records
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <StudentDocumentsTab studentId={student.id} />
             </TabsContent>
 
             {/* Timeline Tab */}

@@ -10,7 +10,7 @@ import { useStudents, useUpdateStudent } from '@/hooks/useStudents'
 import { Student } from '@/types'
 import { PIPELINE_STAGES } from '@/lib/constants'
 import { getStageColor, cn } from '@/lib/utils'
-import { Users, Plus } from 'lucide-react'
+import { Users } from 'lucide-react'
 import { Eye, Pencil, Trash2 } from 'lucide-react'
 
 interface KanbanBoardProps {
@@ -60,10 +60,6 @@ export function KanbanBoard({
           <Users className="h-5 w-5" />
           <h2 className="text-lg font-semibold">Student Pipeline</h2>
         </div>
-        <Button size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Student
-        </Button>
       </div>
 
       <DndContext onDragEnd={handleDragEnd}>

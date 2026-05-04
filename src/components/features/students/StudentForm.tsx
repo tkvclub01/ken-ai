@@ -22,7 +22,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { Student, StudentInsert } from '@/types'
+import { Student, StudentInsert, School } from '@/types'
+import { useSchools } from '@/hooks/useSchools'
 
 const studentSchema = z.object({
   full_name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -53,6 +54,7 @@ export function StudentForm({
   onSubmit,
 }: StudentFormProps) {
   const isEditing = !!student
+  const { data: schools, isLoading: isLoadingSchools } = useSchools()
 
   const {
     register,
@@ -166,11 +168,33 @@ export function StudentForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="target_school">Target School</Label>
-            <Input
-              id="target_school"
-              {...register('target_school')}
-              placeholder="Harvard University"
+            <Label htmlFor="target_school">Target School (Trường mục tiêu) *</Label>
+            <p className="text-xs text-muted-foreground">
+              Select the university/institution you are applying to for study abroad
+            </p>
+            <Controller
+              name="target_school"
+              control={control}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value || ''}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select target school" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {isLoadingSchools ? (
+                      <div className="p-2 text-sm text-muted-foreground">Loading schools...</div>
+                    ) : schools && schools.length > 0 ? (
+                      schools.map((school: School) => (
+                        <SelectItem key={school.id} value={school.name}>
+                          {school.name} ({school.country})
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <div className="p-2 text-sm text-muted-foreground">No schools available</div>
+                    )}
+                  </SelectContent>
+                </Select>
+              )}
             />
           </div>
 

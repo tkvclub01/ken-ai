@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
-import { Student, StudentInsert, StudentUpdate } from '@/types'
+import { Student, StudentInsert, StudentUpdate, Document, DocumentInsert } from '@/types'
 import { handleError, handleSupabaseError } from '@/lib/errors'
 import { useMemo } from 'react'
 import { toast } from 'sonner'
@@ -350,6 +350,159 @@ export function useDeleteStudent() {
     },
     onError: (error: any) => {
       console.error('Failed to delete student:', error.message)
+    },
+  })
+}
+
+/**
+ * Hook to fetch student documents
+ */
+export function useStudentDocuments(studentId: string) {
+  const supabase = createClient()
+
+  return useQuery({
+    queryKey: ['student-documents', studentId],
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase
+          .from('documents')
+          .select('*')
+          .eq('student_id', studentId)
+          .order('created_at', { ascending: false })
+
+        if (error) {
+          console.error('Error fetching student documents:', error)
+          throw new Error(error.message)
+        }
+
+        return data || []
+      } catch (error: any) {
+        const appError = handleSupabaseError(error)
+        console.error('useStudentDocuments query failed:', appError)
+        throw appError
+      }
+    },
+    enabled: !!studentId,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
+    retry: 2,
+  })
+}
+
+/**
+ * Hook to upload a student document
+ */
+export function useUploadStudentDocument() {
+  const queryClient = useQueryClient()
+  const supabase = createClient()
+
+  return useMutation({
+    mutationFn: async ({ studentId, file, documentType }: { 
+      studentId: string
+      file: File
+      documentType: string
+    }) => {
+      try {
+        // Upload file to storage
+        const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+        const filePath = `${studentId}/${Date.now()}_${sanitizedFileName}`
+        
+        const { error: uploadError } = await supabase.storage
+          .from('student-documents')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false,
+            contentType: file.type,
+          })
+
+        if (uploadError) {
+          throw new Error(uploadError.message)
+        }
+
+        // Get public URL
+        const { data: urlData } = supabase.storage
+          .from('student-documents')
+          .getPublicUrl(filePath)
+
+        // Create document record in database
+        const { data, error } = await supabase
+          .from('documents')
+          .insert({
+            student_id: studentId,
+            document_type: documentType,
+            file_name: file.name,
+            file_path: filePath,
+            file_size: file.size,
+            mime_type: file.type,
+          })
+          .select()
+          .single()
+
+        if (error) {
+          throw new Error(error.message)
+        }
+
+        return data as Document
+      } catch (error: any) {
+        const appError = handleSupabaseError(error)
+        console.error('useUploadStudentDocument mutation failed:', appError)
+        throw appError
+      }
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['student-documents', variables.studentId] })
+      toast.success('Tải lên tài liệu thành công')
+    },
+    onError: (error: any) => {
+      console.error('Failed to upload document:', error.message)
+      toast.error('Không thể tải lên tài liệu', {
+        description: error.message || 'Vui lòng thử lại'
+      })
+    },
+  })
+}
+
+/**
+ * Hook to delete a student document
+ */
+export function useDeleteStudentDocument() {
+  const queryClient = useQueryClient()
+  const supabase = createClient()
+
+  return useMutation({
+    mutationFn: async ({ id, filePath }: { id: string; filePath: string }) => {
+      try {
+        // Delete from storage
+        await supabase.storage
+          .from('student-documents')
+          .remove([filePath])
+
+        // Delete from database
+        const { error } = await supabase
+          .from('documents')
+          .delete()
+          .eq('id', id)
+        
+        if (error) {
+          throw new Error(error.message)
+        }
+      } catch (error: any) {
+        const appError = handleSupabaseError(error)
+        console.error('useDeleteStudentDocument mutation failed:', appError)
+        throw appError
+      }
+    },
+    onSuccess: (_, variables) => {
+      // Extract student_id from filePath (format: studentId/filename)
+      const studentId = variables.filePath.split('/')[0]
+      queryClient.invalidateQueries({ queryKey: ['student-documents', studentId] })
+      toast.success('Đã xóa tài liệu')
+    },
+    onError: (error: any) => {
+      console.error('Failed to delete document:', error.message)
+      toast.error('Không thể xóa tài liệu', {
+        description: error.message || 'Vui lòng thử lại'
+      })
     },
   })
 }

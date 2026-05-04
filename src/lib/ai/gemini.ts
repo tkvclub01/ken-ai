@@ -2,7 +2,8 @@ import { google } from '@ai-sdk/google'
 import { generateText, streamText, generateObject } from 'ai'
 import { z } from 'zod'
 
-const gemini = google('gemini-1.5-flash')
+// Use gemini-2.5-flash-lite for chat bot support (fast and cost-effective)
+const gemini = google('gemini-2.5-flash-lite')
 
 // Rate limiting configuration
 const RATE_LIMIT_WINDOW_MS = 60 * 1000 // 1 minute
@@ -15,6 +16,53 @@ interface RateLimitEntry {
 }
 
 const rateLimitStore = new Map<string, RateLimitEntry>()
+
+// NEW: Response cache for frequent queries (TTL: 1 hour)
+interface CacheEntry {
+  response: string
+  timestamp: number
+}
+
+const CACHE_TTL_MS = 60 * 60 * 1000 // 1 hour
+const responseCache = new Map<string, CacheEntry>()
+
+/**
+ * Generate cache key from message and context
+ */
+function generateCacheKey(message: string, context?: string): string {
+  const normalizedMessage = message.toLowerCase().trim()
+  const normalizedContext = context ? context.toLowerCase().trim() : ''
+  return `${normalizedMessage}|${normalizedContext}`
+}
+
+/**
+ * Check if cached response exists and is still valid
+ */
+function getCachedResponse(key: string): string | null {
+  const entry = responseCache.get(key)
+  if (!entry) return null
+  
+  const now = Date.now()
+  if (now - entry.timestamp > CACHE_TTL_MS) {
+    // Cache expired
+    responseCache.delete(key)
+    return null
+  }
+  
+  console.log(`[Cache HIT] Returning cached response for query`)
+  return entry.response
+}
+
+/**
+ * Store response in cache
+ */
+function setCachedResponse(key: string, response: string): void {
+  responseCache.set(key, {
+    response,
+    timestamp: Date.now(),
+  })
+  console.log(`[Cache SET] Cached response for future queries`)
+}
 
 // Cleanup interval for expired rate limit entries (every 5 minutes)
 const CLEANUP_INTERVAL_MS = 5 * 60 * 1000
@@ -34,8 +82,16 @@ function startRateLimitCleanup(): void {
       }
     })
     
+    // NEW: Also clean up expired cache entries
+    responseCache.forEach((entry, key) => {
+      if (now - entry.timestamp > CACHE_TTL_MS) {
+        responseCache.delete(key)
+        cleanedCount++
+      }
+    })
+    
     if (cleanedCount > 0) {
-      console.log(`[Rate Limiter] Cleaned up ${cleanedCount} expired entries`)
+      console.log(`[Cleanup] Cleaned up ${cleanedCount} expired entries (rate limits + cache)`)
     }
   }, CLEANUP_INTERVAL_MS)
 }
@@ -153,6 +209,13 @@ export async function generateAIResponse(
   // Enforce rate limit
   checkRateLimit(userId)
 
+  // NEW: Check cache first
+  const cacheKey = generateCacheKey(message, context)
+  const cachedResponse = getCachedResponse(cacheKey)
+  if (cachedResponse) {
+    return cachedResponse
+  }
+
   let systemPrompt = `You are KEN AI, an intelligent assistant helping staff with student consultation and visa processing.
   
 You have access to:
@@ -179,6 +242,9 @@ Always be professional, accurate, and cite your sources when possible.`
         { role: 'user', content: message },
       ],
     })
+
+    // NEW: Cache the response
+    setCachedResponse(cacheKey, text)
 
     return text
   } catch (error: any) {
@@ -280,6 +346,138 @@ export async function generateEmbedding(text: string, userId: string = 'anonymou
     console.error('Embedding generation failed:', error)
     throw error
   }
+}
+
+/**
+ * Classify document type using AI analysis
+ */
+export async function classifyDocument(
+  extractedData: any,
+  fileName: string,
+  mimeType: string
+): Promise<{ documentType: string; confidence: number }> {
+  const prompt = `
+    Analyze this document and classify it into one of the following types:
+    - passport
+    - academic_transcript
+    - visa_application
+    - recommendation_letter
+    - personal_essay
+    - english_certificate
+    - financial_document
+    - birth_certificate
+    - other
+    
+    Document filename: ${fileName}
+    File type: ${mimeType}
+    Extracted data: ${JSON.stringify(extractedData, null, 2)}
+    
+    Return ONLY a JSON object with:
+    - documentType: the classified type (use snake_case)
+    - confidence: number between 0-1 indicating confidence level
+  `
+
+  try {
+    const schema = z.object({
+      documentType: z.string(),
+      confidence: z.number().min(0).max(1),
+    })
+
+    const { object } = await generateObject({
+      model: gemini,
+      schema,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: prompt },
+          ],
+        },
+      ],
+    })
+
+    return {
+      documentType: object.documentType,
+      confidence: object.confidence,
+    }
+  } catch (error) {
+    console.error('Error classifying document:', error)
+    return {
+      documentType: 'other',
+      confidence: 0,
+    }
+  }
+}
+
+/**
+ * Aggregate student profile from multiple document extractions
+ */
+export async function aggregateStudentProfile(
+  documents: Array<{ fileName: string; documentType: string; data: any }>,
+  currentStudentId: string
+): Promise<Partial<any>> {
+  const aggregatedData: any = {}
+
+  // Extract and merge data from different document types
+  for (const doc of documents) {
+    const { documentType, data } = doc
+
+    switch (documentType) {
+      case 'passport':
+        if (data.fullName && !aggregatedData.full_name) {
+          aggregatedData.full_name = data.fullName
+        }
+        if (data.dateOfBirth && !aggregatedData.date_of_birth) {
+          aggregatedData.date_of_birth = data.dateOfBirth
+        }
+        if (data.nationality && !aggregatedData.nationality) {
+          aggregatedData.nationality = data.nationality
+        }
+        if (data.passportNumber) {
+          aggregatedData.passport_number = data.passportNumber
+        }
+        break
+
+      case 'academic_transcript':
+        if (data.gpa) {
+          aggregatedData.gpa = data.gpa
+        }
+        if (data.email && !aggregatedData.email) {
+          aggregatedData.email = data.email
+        }
+        break
+
+      case 'english_certificate':
+        if (data.ieltsScore || data.toeflScore) {
+          aggregatedData.english_test_score = data.ieltsScore || data.toeflScore
+          aggregatedData.english_test_type = data.ieltsScore ? 'IELTS' : 'TOEFL'
+        }
+        break
+
+      case 'visa_application':
+        if (data.targetCountry && !aggregatedData.target_country) {
+          aggregatedData.target_country = data.targetCountry
+        }
+        break
+
+      case 'other':
+        // Store miscellaneous data in metadata
+        if (!aggregatedData.metadata) {
+          aggregatedData.metadata = {}
+        }
+        aggregatedData.metadata[documentType] = data
+        break
+    }
+  }
+
+  // Remove undefined values
+  Object.keys(aggregatedData).forEach(key => {
+    if (aggregatedData[key] === undefined) {
+      delete aggregatedData[key]
+    }
+  })
+
+  return aggregatedData
 }
 
 /**

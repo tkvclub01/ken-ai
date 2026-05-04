@@ -21,6 +21,8 @@ import { School } from '@/types'
 import { formatDate, cn } from '@/lib/utils'
 import { useUpdateSchoolNotes } from '@/hooks/useSchools'
 import { DocumentsTab } from './DocumentsTab'
+import { SchoolAnalytics } from './SchoolAnalytics'
+import { EmailTemplatesTab } from './EmailTemplatesTab'
 import {
   Building2,
   MapPin,
@@ -199,9 +201,11 @@ export function SchoolDetailModal({
         {/* Tabs Section */}
         <Tabs defaultValue="overview" className="flex-1 overflow-hidden flex flex-col">
           <div className="px-4 sm:px-6 md:px-8 pt-3 sm:pt-4">
-            <TabsList className="grid w-full grid-cols-2 h-10 sm:h-12">
+            <TabsList className="grid w-full grid-cols-4 h-10 sm:h-12">
               <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+              <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
               <TabsTrigger value="documents" className="text-xs sm:text-sm">Documents</TabsTrigger>
+              <TabsTrigger value="email-templates" className="text-xs sm:text-sm">Email Templates</TabsTrigger>
             </TabsList>
           </div>
 
@@ -484,6 +488,16 @@ export function SchoolDetailModal({
             {/* Documents Tab */}
             <TabsContent value="documents" className="mt-0">
               <DocumentsTab schoolId={school.id} />
+            </TabsContent>
+
+            {/* Analytics Tab */}
+            <TabsContent value="analytics" className="mt-0">
+              <SchoolAnalytics school={school as any} />
+            </TabsContent>
+
+            {/* Email Templates Tab */}
+            <TabsContent value="email-templates" className="mt-0">
+              <EmailTemplatesTab schoolId={school.id} />
             </TabsContent>
           </ScrollArea>
         </Tabs>

@@ -24,6 +24,13 @@ export async function chatWithAI(
       throw new Error('Unauthorized')
     }
 
+    // NEW: Fetch user profile for context
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+
     // Create new conversation if none provided
     let convId = conversationId
     if (!convId) {
@@ -55,8 +62,35 @@ export async function chatWithAI(
       studentData = student
     }
 
-    // Generate AI response with context
-    const aiResponse = await generateAIResponse(message, context, studentData)
+    // NEW: Build enhanced context with user profile and student info
+    let enhancedContext = ''
+    
+    if (userProfile) {
+      enhancedContext += `\n\nCurrent User Profile:\n- Name: ${userProfile.full_name || 'N/A'}\n- Email: ${userProfile.email || 'N/A'}\n- Role: ${userProfile.role || 'N/A'}`
+    }
+
+    if (studentData) {
+      enhancedContext += `\n\nAssociated Student Information:\n- Full Name: ${studentData.full_name || 'N/A'}\n- Email: ${studentData.email || 'N/A'}\n- Target School: ${studentData.target_school || 'Not specified'}\n- Current Stage: ${studentData.current_stage || 'N/A'}\n- Nationality: ${studentData.nationality || 'N/A'}`
+      
+      // Add target school details if available
+      if (studentData.target_school) {
+        const { data: schoolInfo } = await supabase
+          .from('schools')
+          .select('name, country, description')
+          .eq('name', studentData.target_school)
+          .single()
+        
+        if (schoolInfo) {
+          enhancedContext += `\n\nTarget School Details:\n- Name: ${schoolInfo.name}\n- Country: ${schoolInfo.country}\n- Description: ${schoolInfo.description || 'N/A'}`
+        }
+      }
+    }
+
+    // Combine all context
+    const fullContext = [context, enhancedContext].filter(Boolean).join('\n\n')
+
+    // Generate AI response with enhanced context
+    const aiResponse = await generateAIResponse(message, fullContext || undefined, studentData, userId)
 
     // Save user message
     await supabase

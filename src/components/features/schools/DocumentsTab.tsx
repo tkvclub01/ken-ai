@@ -90,6 +90,20 @@ export function DocumentsTab({ schoolId }: DocumentsTabProps) {
     }
   }
 
+  // Handle upload dialog state change - reset form when closing
+  const handleUploadDialogChange = (open: boolean) => {
+    setUploadDialogOpen(open)
+    if (!open) {
+      // Reset all form state when dialog closes
+      setSelectedFile(null)
+      setDocumentType('partnership_agreement')
+      // Clear the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
+  }
+
   const getDocumentTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
       partnership_agreement: 'Hợp Đồng Hợp Tác',
@@ -209,7 +223,7 @@ export function DocumentsTab({ schoolId }: DocumentsTabProps) {
       </Card>
 
       {/* Upload Dialog */}
-      <AlertDialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+      <AlertDialog open={uploadDialogOpen} onOpenChange={handleUploadDialogChange}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Upload Document</AlertDialogTitle>
