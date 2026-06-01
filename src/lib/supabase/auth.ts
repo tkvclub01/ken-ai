@@ -1,8 +1,34 @@
 'use server'
 
+import { headers } from 'next/headers'
 import { createClient } from './server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { getDashboardPath } from '@/lib/route-policy'
+
+async function getAuthRedirectUrl(path = '/auth/callback') {
+  const envAppUrl = process.env.NEXT_PUBLIC_APP_URL?.trim()
+
+  try {
+    const requestHeaders = await headers()
+    const forwardedHost = requestHeaders.get('x-forwarded-host')
+    const host = forwardedHost || requestHeaders.get('host')
+    const forwardedProto = requestHeaders.get('x-forwarded-proto')
+    const protocol = forwardedProto || (host?.includes('localhost') ? 'http' : 'https')
+
+    if (host) {
+      return `${protocol}://${host}${path}`
+    }
+  } catch (error) {
+    console.warn('[Auth] Failed to derive redirect URL from request headers:', error)
+  }
+
+  const appUrl = envAppUrl && !envAppUrl.includes('localhost:3000')
+    ? envAppUrl
+    : 'https://ken-ai-two.vercel.app'
+
+  return `${appUrl.replace(/\/$/, '')}${path}`
+}
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient()
@@ -43,18 +69,7 @@ export async function signIn(formData: FormData) {
           .update({ last_login_at: new Date().toISOString() })
           .eq('id', data.user.id)
 
-        const role = profile?.role || 'counselor'
-
-        // Role-based redirect
-        let redirectPath = '/'
-        if (role === 'admin') {
-          redirectPath = '/admin'
-        } else if (['manager', 'counselor', 'processor'].includes(role)) {
-          redirectPath = '/employee'
-        } else {
-          // student or unknown role
-          redirectPath = '/student'
-        }
+        const redirectPath = getDashboardPath(profile?.role)
 
         revalidatePath('/', 'layout')
         redirect(redirectPath)
@@ -84,14 +99,16 @@ export async function signUp(formData: FormData) {
   console.log(`Attempting signup for: ${email}`)
 
   try {
+    const emailRedirectTo = await getAuthRedirectUrl()
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
+        emailRedirectTo,
         data: {
           full_name: fullName,
-          role: 'counselor', // Explicitly set role for trigger enum safety
+          role: 'student', // Trigger enforces safe default; metadata is informational only.
         },
       },
     })
@@ -140,10 +157,12 @@ export async function getCurrentUser() {
 export async function sendMagicLink(email: string) {
   const supabase = await createClient()
 
+  const emailRedirectTo = await getAuthRedirectUrl()
+
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
+      emailRedirectTo,
     },
   })
 
@@ -158,10 +177,12 @@ export async function sendMagicLink(email: string) {
 export async function signInWithGoogle() {
   const supabase = await createClient()
 
+  const redirectTo = await getAuthRedirectUrl()
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
+      redirectTo,
       queryParams: {
         access_type: 'offline',
         prompt: 'consent',
@@ -200,13 +221,15 @@ export async function inviteUser(formData: FormData) {
     throw new Error('Only admins can invite users')
   }
 
+  const redirectTo = await getAuthRedirectUrl()
+
   // Send invite email
   const { error } = await supabase.auth.admin.inviteUserByEmail(email, {
     data: {
       full_name: fullName,
       role: role,
     },
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
+    redirectTo,
   })
 
   if (error) {
